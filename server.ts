@@ -143,7 +143,7 @@ async function startServer() {
       }
 
       if (imageUrl) {
-        res.json({ image: { url:imageUrl } });
+        res.json({ image: { url: imageUrl } });
       } else {
         console.error("Could not find image URL in Fal.ai response:", result);
         res.status(500).json({ error: "AI returned data in an unexpected format." });
