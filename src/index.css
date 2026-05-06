@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Lexend:wght@400;700;800;900&family=Manrope:wght@400;500;600;700&family=Notable&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-headline: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Notable", "Bangers", cursive;
+
+  /* Theme Colors */
+  --color-primary: #28628f;
+  --color-primary-container: #75aadb;
+  --color-on-primary: #ffffff;
+  --color-secondary: #39618c;
+  --color-secondary-container: #a6ccfe;
+  --color-tertiary: #7d5700;
+  --color-tertiary-container: #d89a00;
+  --color-background: #f8f9fa;
+  --color-on-background: #191c1d;
+  --color-surface: #f8f9fa;
+  --color-on-surface: #191c1d;
+  --color-on-surface-variant: #41474f;
+  --color-outline: #71787f;
+  --color-outline-variant: #c1c7d0;
+  --color-primary-fixed: #cee5ff;
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .hero-gradient {
+    background: linear-gradient(135deg, #f8f9fa 0%, #cee5ff 100%);
+  }
+
+  .primary-gradient-bg {
+    background: linear-gradient(135deg, #28628f 0%, #75aadb 100%);
+  }
+
+  .sun-of-may-bg {
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" fill="%23FFD700" opacity="0.03" r="15"></circle><g opacity="0.03"><path d="M50 10 L50 35 M50 65 L50 90 M10 50 L35 50 M65 50 L90 50 M21.7 21.7 L39.4 39.4 M60.6 60.6 L78.3 78.3 M21.7 78.3 L39.4 60.6 M60.6 39.4 L78.3 21.7" stroke="%23FFD700" stroke-width="2"></path></g></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60vh;
+  }
+
+  @keyframes glimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  .glimmer-text {
+    background: linear-gradient(
+      90deg,
+      #FFFFFF 0%,
+      #FFFFFF 40%,
+      #FFD700 50%,
+      #FFFFFF 60%,
+      #FFFFFF 100%
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: glimmer 6s linear infinite;
+  }
+}
+
