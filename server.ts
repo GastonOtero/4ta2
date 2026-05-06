@@ -62,7 +62,6 @@ async function startServer() {
           const filePath = path.join(process.cwd(), 'reference-images', fileName);
           if (fs.existsSync(filePath)) {
             const buffer = fs.readFileSync(filePath);
-            // Check if it's actually an image (not our text placeholder)
             if (buffer.length < 500) {
               console.warn(`File ${fileName} seems too small to be an image, skipping.`);
               return null;
@@ -126,26 +125,33 @@ async function startServer() {
         }
       };
 
-      // Call Fal.ai gemini-2.5-flash-image
-      // We pass the prompt as stringified JSON and the images in an array
-      console.log("Calling Fal.ai with", refImages.length, "images");
+      console.log("Calling Fal.ai with", refImages.length, "images.");
       const result: any = await fal.subscribe("fal-ai/gemini-25-flash-image/edit", {
-        input: {
-          image_urls: refImages,
-          prompt: JSON.stringify(complexPrompt),
-        } as any,
+        image_urls: refImages,
+        prompt: JSON.stringify(complexPrompt),
         logs: true,
       });
 
-      console.log("Fal.ai Result:", JSON.stringify(result, null, 2));
-      res.json(result);
+      console.log("Raw Fal.ai Result:", JSON.stringify(result, null, 2));
+
+      let imageUrl: string | undefined;
+
+      if (result && result.images && result.images.length > 0 && result.images[0].url) {
+        imageUrl = result.images[0].url;
+      }
+
+      if (imageUrl) {
+        res.json({ image: { url: imageUrl } });
+      } else {
+        console.error("Could not find image URL in Fal.ai response:", result);
+        res.status(500).json({ error: "AI returned data in an unexpected format." });
+      }
     } catch (error: any) {
       console.error("Fal.ai Error:", error);
       res.status(500).json({ error: error.message || "Failed to generate image" });
     }
   });
 
-  // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
