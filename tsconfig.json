@@ -18,6 +18,11 @@
         "./*"
       ]
     },
-    "outDir": "dist-server"
-  }
+    "outDir": "dist-server",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "server.ts"
+  ]
 }
