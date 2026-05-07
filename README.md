@@ -15,6 +15,6 @@ View your app in AI Studio: https://ai.studio/apps/f8ef2af6-bb25-4d06-8929-776a1
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+2. Set the `FAL_KEY` in [.env.local](.env.local) to your fal.ai API key
 3. Run the app:
    `npm run dev`

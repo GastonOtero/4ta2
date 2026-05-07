@@ -114,10 +114,10 @@ async function startServer() {
                     ]
                 }
             };
-            // Call Fal.ai gemini-2.5-flash-image
+            // Call Fal.ai nano-banana edit
             // We pass the prompt as stringified JSON and the images in an array
             console.log("Calling Fal.ai with", refImages.length, "images");
-            const result = await fal.subscribe("fal-ai/gemini-25-flash-image/edit", {
+            const result = await fal.subscribe("fal-ai/nano-banana/edit", {
                 input: {
                     image_urls: refImages,
                     prompt: JSON.stringify(complexPrompt),

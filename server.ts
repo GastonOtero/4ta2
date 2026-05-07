@@ -126,9 +126,9 @@ async function startServer() {
       };
 
       console.log("Calling Fal.ai with", refImages.length, "images.");
-      const result: any = await fal.subscribe("fal-ai/gemini-25-flash-image/edit", {
+      const result: any = await fal.subscribe("fal-ai/nano-banana/edit", {
         input: {
-          image_urls: refImages, // Corrected back to image_urls
+          image_urls: refImages,
           prompt: JSON.stringify(complexPrompt),
         },
         logs: true,
