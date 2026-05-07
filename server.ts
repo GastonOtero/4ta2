@@ -136,13 +136,14 @@ async function startServer() {
 
       console.log("Raw Fal.ai Result:", JSON.stringify(result, null, 2));
 
-      const images = result?.images ?? result?.output?.images;
+      const responseBody = result?.data ?? result;
+      const images = responseBody?.images ?? responseBody?.output?.images;
       const imageUrl: string | undefined = images?.length > 0 ? images[0]?.url : undefined;
 
       if (imageUrl) {
         res.json({ image: { url: imageUrl } });
       } else {
-        console.error("Could not find image URL in Fal.ai response:", result);
+        console.error("Could not find image URL in Fal.ai response:", responseBody);
         res.status(500).json({ error: "AI returned data in an unexpected format." });
       }
     } catch (error: any) {
