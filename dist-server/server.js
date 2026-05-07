@@ -114,10 +114,10 @@ async function startServer() {
                     ]
                 }
             };
-            // Call Fal.ai gemini-2.5-flash-image
+            // Call Fal.ai nano-banana edit
             // We pass the prompt as stringified JSON and the images in an array
             console.log("Calling Fal.ai with", refImages.length, "images");
-            const result = await fal.subscribe("fal-ai/gemini-25-flash-image/edit", {
+            const result = await fal.subscribe("fal-ai/nano-banana/edit", {
                 input: {
                     image_urls: refImages,
                     prompt: JSON.stringify(complexPrompt),
@@ -125,7 +125,15 @@ async function startServer() {
                 logs: true,
             });
             console.log("Fal.ai Result:", JSON.stringify(result, null, 2));
-            res.json(result);
+            const responseBody = result?.data ?? result;
+            const images = responseBody?.images ?? responseBody?.output?.images;
+            const imageUrl = images?.length > 0 ? images[0]?.url : undefined;
+            if (imageUrl) {
+                res.json({ image: { url: imageUrl } });
+            } else {
+                console.error("Could not find image URL in Fal.ai response:", responseBody);
+                res.status(500).json({ error: "AI returned data in an unexpected format." });
+            }
         }
         catch (error) {
             console.error("Fal.ai Error:", error);
