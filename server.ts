@@ -136,11 +136,8 @@ async function startServer() {
 
       console.log("Raw Fal.ai Result:", JSON.stringify(result, null, 2));
 
-      let imageUrl: string | undefined;
-
-      if (result && result.images && result.images.length > 0 && result.images[0].url) {
-        imageUrl = result.images[0].url;
-      }
+      const images = result?.images ?? result?.output?.images;
+      const imageUrl: string | undefined = images?.length > 0 ? images[0]?.url : undefined;
 
       if (imageUrl) {
         res.json({ image: { url: imageUrl } });
