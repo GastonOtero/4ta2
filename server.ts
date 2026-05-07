@@ -18,7 +18,7 @@ const upload = multer({
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = parseInt(process.env.PORT || "3000");
 
   app.use(cors());
   app.use(express.json({ limit: '50mb' }));
@@ -62,7 +62,6 @@ async function startServer() {
           const filePath = path.join(process.cwd(), 'reference-images', fileName);
           if (fs.existsSync(filePath)) {
             const buffer = fs.readFileSync(filePath);
-            // Check if it's actually an image (not our text placeholder)
             if (buffer.length < 500) {
               console.warn(`File ${fileName} seems too small to be an image, skipping.`);
               return null;
@@ -126,26 +125,33 @@ async function startServer() {
         }
       };
 
-      // Call Fal.ai gemini-2.5-flash-image
-      // We pass the prompt as stringified JSON and the images in an array
-      console.log("Calling Fal.ai with", refImages.length, "images");
-      const result: any = await fal.subscribe("fal-ai/gemini-25-flash-image/edit", {
+      console.log("Calling Fal.ai with", refImages.length, "images.");
+      const result: any = await fal.subscribe("fal-ai/nano-banana/edit", {
         input: {
           image_urls: refImages,
           prompt: JSON.stringify(complexPrompt),
-        } as any,
+        },
         logs: true,
       });
 
-      console.log("Fal.ai Result:", JSON.stringify(result, null, 2));
-      res.json(result);
+      console.log("Raw Fal.ai Result:", JSON.stringify(result, null, 2));
+
+      const responseBody = result?.data ?? result;
+      const images = responseBody?.images ?? responseBody?.output?.images;
+      const imageUrl: string | undefined = images?.length > 0 ? images[0]?.url : undefined;
+
+      if (imageUrl) {
+        res.json({ image: { url: imageUrl } });
+      } else {
+        console.error("Could not find image URL in Fal.ai response:", responseBody);
+        res.status(500).json({ error: "AI returned data in an unexpected format." });
+      }
     } catch (error: any) {
       console.error("Fal.ai Error:", error);
       res.status(500).json({ error: error.message || "Failed to generate image" });
     }
   });
 
-  // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
