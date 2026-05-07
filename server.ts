@@ -82,7 +82,7 @@ async function startServer() {
       if (base64Image2) refImages.push(base64Image2);
       if (base64Image3) refImages.push(base64Image3);
 
-      const complexPrompt = `Create a photorealistic studio portrait of a person from the first reference image, wearing the Argentina national football team jersey from the second reference image, standing in the stadium environment from the third reference image. 
+      const complexPrompt = `Create a photorealistic studio portrait of a person from the first reference image, wearing the Argentina national football team jersey from the second reference image, standing in the stadium environment from the third reference image. The entire person must be fully visible and completely in the foreground, with no parts cut off or obscured.
 
 Composition: 9:16 vertical aspect ratio optimized for Instagram Stories, subject centered horizontally and vertically, crown of head to lower hips visible, subject occupies bottom two-thirds of frame with top one-third as clean white negative space.
 
