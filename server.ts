@@ -84,7 +84,7 @@ async function startServer() {
 
       const complexPrompt = `Create a photorealistic studio portrait of a person from the first reference image, wearing the Argentina national football team jersey from the second reference image, standing in the stadium environment from the third reference image. The entire person must be fully visible and completely in the foreground, with no parts cut off or obscured.
 
-Composition: 9:16 vertical aspect ratio optimized for Instagram Stories, subject centered horizontally and vertically, crown of head to lower hips visible, subject occupies bottom two-thirds of frame with top one-third as clean white negative space.
+Composition: 9:16 vertical aspect ratio optimized for Instagram Stories, subject centered horizontally and vertically, crown of head to lower hips visible, subject occupies bottom two-thirds of frame with top one-third as clean white negative space. A precise Cowboy Shot composition framed from the crown of the head to the mid-thigh. The subject must be explicitly scaled smaller and positioned in the bottom two-thirds of the frame, leaving precisely one-third (1/3) of the total height as empty negative space above the head. This 'wide-headroom' layout must be strictly maintained.
 
 Pose and expression: Direct eye contact with camera, subtle emotionally layered expression of unshakable pride, deep-seated hope, and quiet joyful smile - deeply human, not theatrical. Eyes bright and glistening with emotion. Right hand pressed firmly and flat over heart in solemn oath posture, fingers together, palm fully in contact.
 
