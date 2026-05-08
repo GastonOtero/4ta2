@@ -120,55 +120,14 @@ function startServer() {
                                         refImages.push(base64Image2);
                                     if (base64Image3)
                                         refImages.push(base64Image3);
-                                    complexPrompt = {
-                                        "subject": {
-                                            "identity": "person from reference image [image_1]",
-                                            "framing": "crown of head to lower hips, centered horizontally",
-                                            "scale_within_frame": "subject occupies bottom two-thirds of vertical frame; top one-third is empty white negative space above the head",
-                                            "z_depth": "subject in foreground, closest to camera"
-                                        },
-                                        "outfit": {
-                                            "garment": "Argentina national football team jersey from reference image [image_2]",
-                                            "accuracy": "replicate exact colors, badge, stripes, and sponsor details from reference"
-                                        },
-                                        "background": {
-                                            "source": "environment from reference image [image_3]",
-                                            "treatment": "used as-is behind subject, no modification"
-                                        },
-                                        "composition": {
-                                            "aspect_ratio": "9:16 vertical — optimized for Instagram Stories",
-                                            "alignment": "centered on both axes",
-                                            "negative_space": "precisely one-third of total frame height left as clean white space above subject's head"
-                                        },
-                                        "expression_and_pose": {
-                                            "gaze": "direct eye contact with camera lens",
-                                            "expression": "subtle, emotionally layered: unshakable pride, deep-seated hope, and quiet joyful smile — not theatrical, deeply human",
-                                            "eyes": "bright, glistening with emotion, slightly moist — conveys authentic feeling",
-                                            "hand_gesture": "right hand pressed firmly and flat over heart — solemn oath posture, fingers together, palm fully in contact"
-                                        },
-                                        "lighting": {
-                                            "quality": "soft yet heroic — diffused key light, gentle fill to preserve shadow depth",
-                                            "intent": "highlights natural skin texture and facial detail to enhance realism and emotional authenticity"
-                                        },
-                                        "technical": {
-                                            "style": "high-definition professional studio portrait photography",
-                                            "realism": "photorealistic — no illustration or painterly effects",
-                                            "quality_tags": [
-                                                "8K resolution",
-                                                "sharp focus",
-                                                "natural skin texture",
-                                                "emotionally authentic",
-                                                "studio-grade"
-                                            ]
-                                        }
-                                    };
+                                    complexPrompt = "Create a photorealistic studio portrait of a person from the first reference image, wearing the Argentina national football team jersey from the second reference image, standing in the stadium environment from the third reference image. The entire person must be fully visible and completely in the foreground, with no parts cut off or obscured.\n\nComposition: 9:16 vertical aspect ratio optimized for Instagram Stories, subject centered horizontally and vertically, crown of head to lower hips visible, subject occupies bottom two-thirds of frame with top one-third as clean white negative space.\n\nPose and expression: Direct eye contact with camera, subtle emotionally layered expression of unshakable pride, deep-seated hope, and quiet joyful smile - deeply human, not theatrical. Eyes bright and glistening with emotion. Right hand pressed firmly and flat over heart in solemn oath posture, fingers together, palm fully in contact.\n\nOutfit: Exact replication of Argentina national football team jersey colors, badge, stripes, and sponsor details from the second reference image.\n\nBackground: Use the stadium environment from the third reference image as-is behind the subject, no modification.\n\nLighting: Soft yet heroic diffused key light with gentle fill to preserve shadow depth, highlighting natural skin texture and facial detail for realism and emotional authenticity.\n\nTechnical: High-definition professional studio portrait photography, photorealistic with no illustration effects, 8K resolution, sharp focus, natural skin texture, emotionally authentic, studio-grade quality.";
                                     // Call Fal.ai gemini-2.5-flash-image
                                     // We pass the prompt as stringified JSON and the images in an array
                                     console.log("Calling Fal.ai with", refImages.length, "images");
                                     return [4 /*yield*/, client_1.fal.subscribe("fal-ai/gemini-25-flash-image/edit", {
                                             input: {
                                                 image_urls: refImages,
-                                                prompt: JSON.stringify(complexPrompt),
+                                                prompt: complexPrompt,
                                             },
                                             logs: true,
                                         })];
