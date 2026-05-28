@@ -82,27 +82,35 @@ async function startServer() {
       if (base64Image2) refImages.push(base64Image2);
       if (base64Image3) refImages.push(base64Image3);
 
-      const complexPrompt = `Create a photorealistic studio portrait of a person from the first reference image, wearing the Argentina national football team jersey from the second reference image, standing in the stadium environment from the third reference image. The entire person must be fully visible and completely in the foreground, with no parts cut off or obscured.
+      const complexPrompt = `Create a photorealistic studio portrait of the exact person from the first reference image (no hat, no additional accessories), wearing the Argentina national football team jersey from the second reference image.
+Use the third reference image as the exact, pixel-perfect, unmodified background. Do not change, reinterpret, regenerate, or stylize the background in any way. Copy it with 100% fidelity — identical flag, stars, stadium, lighting, perspective, crowd, and atmosphere. Maximum background adherence.
+Composition: Strictly 9:16 vertical aspect ratio matching the third reference image. Tight Cowboy Shot. Subject perfectly centered, occupying the lower 75% of the frame. Exactly 25% empty space above the subject's head. Frame cuts at mid-thigh/upper-thigh. Top of head positioned exactly at the 3/4 vertical mark.
+Pose and expression: Direct eye contact with camera. Subtle, authentic expression of pride, hope, and quiet joyful smile. Eyes bright and emotional. Right hand placed flat over the heart, fingers together, palm fully contacting the chest in solemn gesture.
+Critical subject instructions:
 
-Composition: 9:16 vertical aspect ratio. Tight Cowboy Shot framing. The subject is centered and scaled to occupy the lower 75% of the frame. Exactly one-fourth (25%) of the frame must remain as empty space above the head. The bottom edge of the frame must cut at the mid-thigh/upper-thigh area to ensure the subject appears large and present, not distant. The subject must be scaled such that the top of their head is positioned exactly at the three-fourths (3/4) vertical mark of the frame. A tight Cowboy Shot framed from the crown of the head to the upper-thigh. The subject's torso should occupy the majority of the bottom three-fourths of the frame.
+Use the exact face, hair, glasses, and features from the first reference image.
+No hat, no cowboy hat, no headwear of any kind.
+No additional accessories.
+Hair, glasses, and facial features must match the first reference precisely.
 
-Pose and expression: Direct eye contact with camera, subtle emotionally layered expression of unshakable pride, deep-seated hope, and quiet joyful smile - deeply human, not theatrical. Eyes bright and glistening with emotion. Right hand pressed firmly and flat over heart in solemn oath posture, fingers together, palm fully in contact.
+Outfit: Exact Argentina national team jersey from the second reference image — perfect colors, stripes, badges, sponsors, and fit.
+Lighting: Soft diffused heroic key light with gentle fill, natural skin texture, realistic shadows.
+Technical: Photorealistic 8K studio portrait, sharp focus, natural skin details, seamless photographic composite, emotionally authentic.
+Strict directives:
 
-Outfit: Exact replication of Argentina national football team jersey colors, badge, stripes, and sponsor details from the second reference image.
-
-Background: Use the stadium environment from the third reference image as-is behind the subject, no modification.
-
-Lighting: Soft yet heroic diffused key light with gentle fill to preserve shadow depth, highlighting natural skin texture and facial detail for realism and emotional authenticity.
-
-Technical: High-definition professional studio portrait photography, photorealistic with no illustration effects, 8K resolution, sharp focus, natural skin texture, emotionally authentic, studio-grade quality.`;
+No creative additions to the subject (especially no hats).
+Zero background modification or hallucination.
+Maximum fidelity to all three reference images.
+Subject fully visible and in foreground.`;
 
       console.log("Calling Fal.ai with", refImages.length, "images.");
-      const result: any = await fal.subscribe("fal-ai/nano-banana/edit", {
+      const result: any = await fal.subscribe("xai/grok-imagine-image/edit", {
         input: {
           image_urls: refImages,
           prompt: complexPrompt,
           aspect_ratio: "9:16",
-        },
+          output_format: "jpeg",
+        } as any,
         logs: true,
       });
 
