@@ -98,7 +98,7 @@ Style directives: Seamless photographic composite. Maximum background fidelity. 
           prompt: complexPrompt,
           aspect_ratio: "9:16",
           output_format: "jpeg",
-        },
+        } as any,
         logs: true,
       });
 
