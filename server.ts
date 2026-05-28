@@ -82,14 +82,26 @@ async function startServer() {
       if (base64Image2) refImages.push(base64Image2);
       if (base64Image3) refImages.push(base64Image3);
 
-      const complexPrompt = `Create a photorealistic studio portrait of the person from the first reference image, wearing the exact Argentina national football team jersey from the second reference image.
-Use the third reference image as the exact, unmodified background with 100% fidelity. Preserve every detail — perspective, lighting, stands, field, crowd, sky, and atmosphere — without any changes, reinterpretation, or regeneration. The background must be an identical match to the third reference image.
-Composition: Strictly maintain the 9:16 vertical aspect ratio from the third reference image. Tight Cowboy Shot framing. The subject is perfectly centered and scaled to occupy the lower 75% of the frame. Exactly 25% empty space above the head. The bottom edge of the frame cuts at the mid-thigh/upper-thigh area. The top of the subject's head must be positioned exactly at the three-fourths (3/4) vertical mark of the frame. The subject's torso should dominate the bottom three-fourths of the image.
-Pose and expression: Direct eye contact with the camera. Subtle, emotionally layered expression showing unshakable pride, deep hope, and a quiet joyful smile — deeply human and authentic. Eyes bright and glistening with emotion. Right hand pressed firmly and flat over the heart in a solemn oath posture, fingers together, palm fully in contact.
-Outfit: Exact replication of the Argentina national football team jersey from the second reference image — colors, badge, stripes, sponsor logos, and all details must match perfectly.
-Lighting: Soft heroic diffused key light with gentle fill lights, preserving natural shadow depth and highlighting realistic skin texture and facial details.
-Technical: Photorealistic professional studio portrait photography, 8K resolution, sharp focus, natural skin texture, high detail, emotionally authentic, no illustration or artistic effects.
-Style directives: Seamless photographic composite. Maximum background fidelity. No background modifications or hallucination. Subject fully visible, completely in foreground, no cropping or obstruction.`;
+      const complexPrompt = `Create a photorealistic studio portrait of the exact person from the first reference image (no hat, no additional accessories), wearing the Argentina national football team jersey from the second reference image.
+Use the third reference image as the exact, pixel-perfect, unmodified background. Do not change, reinterpret, regenerate, or stylize the background in any way. Copy it with 100% fidelity — identical flag, stars, stadium, lighting, perspective, crowd, and atmosphere. Maximum background adherence.
+Composition: Strictly 9:16 vertical aspect ratio matching the third reference image. Tight Cowboy Shot. Subject perfectly centered, occupying the lower 75% of the frame. Exactly 25% empty space above the subject's head. Frame cuts at mid-thigh/upper-thigh. Top of head positioned exactly at the 3/4 vertical mark.
+Pose and expression: Direct eye contact with camera. Subtle, authentic expression of pride, hope, and quiet joyful smile. Eyes bright and emotional. Right hand placed flat over the heart, fingers together, palm fully contacting the chest in solemn gesture.
+Critical subject instructions:
+
+Use the exact face, hair, glasses, and features from the first reference image.
+No hat, no cowboy hat, no headwear of any kind.
+No additional accessories.
+Hair, glasses, and facial features must match the first reference precisely.
+
+Outfit: Exact Argentina national team jersey from the second reference image — perfect colors, stripes, badges, sponsors, and fit.
+Lighting: Soft diffused heroic key light with gentle fill, natural skin texture, realistic shadows.
+Technical: Photorealistic 8K studio portrait, sharp focus, natural skin details, seamless photographic composite, emotionally authentic.
+Strict directives:
+
+No creative additions to the subject (especially no hats).
+Zero background modification or hallucination.
+Maximum fidelity to all three reference images.
+Subject fully visible and in foreground.`;
 
       console.log("Calling Fal.ai with", refImages.length, "images.");
       const result: any = await fal.subscribe("xai/grok-imagine-image/edit", {
