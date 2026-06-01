@@ -6,6 +6,8 @@ import multer from "multer";
 import cors from "cors";
 import { fal } from "@fal-ai/client";
 import dotenv from "dotenv";
+import express from 'express';
+import crypto from 'crypto';
 
 dotenv.config();
 
@@ -150,5 +152,108 @@ Subject fully visible and in foreground.`;
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
+
+const app = express();
+app.use(express.json());
+
+// A temporary server cache to keep track of active, valid download tokens
+// For production scale, map this out to a Firestore database instead!
+const validDownloadTokens = new Map<string, { imageUrl: string; expiresAt: number }>();
+
+// 1. Payment processing endpoint
+app.post('/api/process-payment', async (req, res) => {
+  const { paymentData, imageUrl } = req.body;
+
+  try {
+    // Send request directly to Mercado Pago API using your Private Access Token
+    const mpResponse = await fetch('https://api.mercadopago.com/v1/payments', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_MERCADO_PAGO_PRIVATE_ACCESS_TOKEN',
+        'Content-Type': 'application/json',
+        'X-Idempotency-Key': crypto.randomUUID() // Mandatory safety parameter for MP
+      },
+      body: JSON.stringify({
+        token: paymentData.token,
+        issuer_id: paymentData.issuer_id,
+        payment_method_id: paymentData.payment_method_id,
+        transaction_amount: paymentData.transaction_amount,
+        installments: paymentData.installments,
+        description: 'Descarga de Retrato Camiseta Argentina',
+        payer: {
+          email: paymentData.payer.email,
+          identification: paymentData.payer.identification
+        }
+      })
+    });
+
+    const paymentResult = await mpResponse.json();
+
+    if (paymentResult.status === 'approved') {
+      // Create a secure, random dynamic token for the download
+      const downloadToken = crypto.randomBytes(32).toString('hex');
+      
+      // Store the token mapped to the image URL, expiring in 15 minutes
+      validDownloadTokens.set(downloadToken, {
+        imageUrl: imageUrl,
+        expiresAt: Date.now() + 15 * 60 * 1000 
+      });
+
+      return res.status(200).json({
+        status: 'approved',
+        downloadToken: downloadToken
+      });
+    } else {
+      return res.status(400).json({
+        status: paymentResult.status,
+        detail: paymentResult.status_detail || 'Pago rechazado o pendiente.'
+      });
+    }
+
+  } catch (error) {
+    console.error('Mercado Pago Gateway Error:', error);
+    return res.status(500).json({ error: 'Internal server payment error' });
+  }
+});
+
+// 2. Token-gated download endpoint
+app.get('/api/download', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token || typeof token !== 'string') {
+    return res.status(401).send('Acceso denegado: Token ausente.');
+  }
+
+  const tokenRecord = validDownloadTokens.get(token);
+
+  // Validate existence and expiration timestamps
+  if (!tokenRecord || Date.now() > tokenRecord.expiresAt) {
+    return res.status(403).send('Enlace de descarga inválido o expirado.');
+  }
+
+  try {
+    // Fetch the target image from cloud storage (e.g., fal.ai or Cloudflare R2 bucket)
+    const imageResponse = await fetch(tokenRecord.imageUrl);
+    
+    if (!imageResponse.ok) throw new Error('Failed to fetch image binary source');
+
+    // Force download download headers instead of opening inline script assets
+    res.setHeader('Content-Disposition', 'attachment; filename="mi-retrato-campeon.jpg"');
+    res.setHeader('Content-Type', 'image/jpeg');
+
+    // Stream the image file buffer down to the client connection frame
+    const arrayBuffer = await imageResponse.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    // Optional: Delete the token immediately after use to prevent re-use sharing
+    validDownloadTokens.delete(token);
+
+    return res.send(buffer);
+
+  } catch (err) {
+    console.error('Download Streaming Error:', err);
+    return res.status(500).send('Error al procesar la descarga de su archivo.');
+  }
+});
 
 startServer();

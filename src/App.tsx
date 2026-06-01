@@ -308,4 +308,134 @@ export default function App() {
   );
 }
 
+import React, { useState, useEffect, useRef } from 'react';
+// ... keep your other imports (lucide-react, motion, etc.)
 
+declare global {
+  interface window {
+    MercadoPago: any;
+  }
+}
+
+export default function App() {
+  const [resultImage, setResultImage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [downloadToken, setDownloadToken] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const brickBuilderRef = useRef<any>(null);
+
+  // Initialize the Payment Brick once the result image preview is generated
+  useEffect(() => {
+    if (!resultImage || downloadToken) return;
+
+    // Initialize Mercado Pago with your Public Key
+    const mp = new window.MercadoPago('YOUR_MERCADO_PAGO_PUBLIC_KEY', {
+      locale: 'es-AR'
+    });
+
+    const bricksBuilder = mp.bricks();
+    brickBuilderRef.current = bricksBuilder;
+
+    const renderPaymentBrick = async () => {
+      await bricksBuilder.create('payment', 'paymentBrick_container', {
+        initialization: {
+          amount: 500, // Cost of the download (e.g., $500 ARS)
+          preferenceId: undefined, // Optional: Use if you generate preferences on backend
+        },
+        customization: {
+          visual: {
+            theme: 'bootstrap', // Fits clean web designs
+          },
+          paymentMethods: {
+            creditCard: 'all',
+            debitCard: 'all',
+            ticket: 'all', // Enables Rapipago / Pago Fácil
+            mercadoPago: 'all', // Enables Mercado Pago Wallet
+          },
+        },
+        callbacks: {
+          onReady: () => {
+            console.log('Payment Brick Ready');
+          },
+          onSubmit: async ({ formData }: any) => {
+            // Triggered when user clicks the "Pay" button inside the Brick
+            return new Promise((resolve, reject) => {
+              processPayment(formData)
+                .then(() => resolve())
+                .catch((err) => {
+                  setPaymentError(err.message);
+                  reject();
+                });
+            });
+          },
+          onError: (error: any) => {
+            console.error('Brick Error:', error);
+          },
+        },
+      });
+    };
+
+    renderPaymentBrick();
+
+    // Cleanup Brick container when component unmounts or changes state
+    return () => {
+      const container = document.getElementById('paymentBrick_container');
+      if (container) container.innerHTML = '';
+    };
+  }, [resultImage, downloadToken]);
+
+  const processPayment = async (formData: any) => {
+    try {
+      const response = await fetch('/api/process-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentData: formData,
+          imageUrl: resultImage // Reference the image they paid for
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === 'approved') {
+        // Securely save the dynamic download token returned by the server
+        setDownloadToken(data.downloadToken);
+      } else {
+        throw new Error(data.detail || 'El pago no pudo ser aprobado.');
+      }
+    } catch (err: any) {
+      throw err;
+    }
+  };
+
+  return (
+    <div>
+      {/* ... Your Hero & Generation code ... */}
+
+      {resultImage && (
+        <div className="max-w-md mx-auto p-6 glass-card mt-10">
+          <h3 className="text-xl font-bold text-center mb-4 text-primary">
+            {!downloadToken ? '🔒 PÁGA PARA DESCARGAR TU RETRATO' : '✅ PAGO APROBADO'}
+          </h3>
+          
+          <img src={resultImage} alt="Preview" className="w-full h-auto rounded-lg mb-6 blur-sm select-none" style={downloadToken ? { filter: 'none' } : {}} />
+
+          {/* The Mercado Pago interface will inject itself inside this div */}
+          {!downloadToken && <div id="paymentBrick_container"></div>}
+          
+          {paymentError && <p className="text-red-500 text-sm mt-2">{paymentError}</p>}
+
+          {/* Download button only becomes operational and visible once downloadToken is present */}
+          {downloadToken && (
+            <a
+              href={`/api/download?token=${downloadToken}`}
+              className="w-full py-3 bg-green-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 hover:bg-green-700 transition-colors"
+            >
+              Descargar Retrato en Alta Definición
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
