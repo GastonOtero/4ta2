@@ -90,7 +90,7 @@ export default function App() {
   useEffect(() => {
     if (!resultImage || downloadToken) return;
 
-    const mpPublicKey = import.meta.env.VITE_MERCADO_PAGO_PUBLIC_KEY || 'YOUR_MERCADO_PAGO_PUBLIC_KEY';
+    const mpPublicKey = (import.meta as any).env.VITE_MERCADO_PAGO_PUBLIC_KEY || 'YOUR_MERCADO_PAGO_PUBLIC_KEY';
     const mp = new window.MercadoPago(mpPublicKey, {
       locale: 'es-AR'
     });
@@ -119,7 +119,7 @@ export default function App() {
             console.log('Payment Brick Ready');
           },
           onSubmit: async ({ formData }: any) => {
-            return new Promise((resolve, reject) => {
+            return new Promise<void>((resolve, reject) => {
               processPayment(formData)
                 .then(() => resolve())
                 .catch((err) => {
