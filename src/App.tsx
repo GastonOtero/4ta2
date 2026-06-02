@@ -5,7 +5,13 @@
 
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw } from 'lucide-react';
-import React, { useState, useRef, ChangeEvent } from 'react';
+import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
+
+declare global {
+  interface Window {
+    MercadoPago: any;
+  }
+}
 
 export default function App() {
   const [isHovered, setIsHovered] = useState(false);
@@ -13,6 +19,10 @@ export default function App() {
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [downloadToken, setDownloadToken] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const brickBuilderRef = useRef<any>(null);
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -72,7 +82,88 @@ export default function App() {
   const reset = () => {
     setResultImage(null);
     setError(null);
+    setDownloadToken(null);
+    setPaymentError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  useEffect(() => {
+    if (!resultImage || downloadToken) return;
+
+    const mpPublicKey = import.meta.env.VITE_MERCADO_PAGO_PUBLIC_KEY || 'YOUR_MERCADO_PAGO_PUBLIC_KEY';
+    const mp = new window.MercadoPago(mpPublicKey, {
+      locale: 'es-AR'
+    });
+
+    const bricksBuilder = mp.bricks();
+    brickBuilderRef.current = bricksBuilder;
+
+    const renderPaymentBrick = async () => {
+      await bricksBuilder.create('payment', 'paymentBrick_container', {
+        initialization: {
+          amount: 500, // Price in ARS
+        },
+        customization: {
+          visual: {
+            theme: 'bootstrap',
+          },
+          paymentMethods: {
+            creditCard: 'all',
+            debitCard: 'all',
+            ticket: 'all',
+            mercadoPago: 'all',
+          },
+        },
+        callbacks: {
+          onReady: () => {
+            console.log('Payment Brick Ready');
+          },
+          onSubmit: async ({ formData }: any) => {
+            return new Promise((resolve, reject) => {
+              processPayment(formData)
+                .then(() => resolve())
+                .catch((err) => {
+                  setPaymentError(err.message);
+                  reject();
+                });
+            });
+          },
+          onError: (error: any) => {
+            console.error('Brick Error:', error);
+          },
+        },
+      });
+    };
+
+    renderPaymentBrick();
+
+    return () => {
+      const container = document.getElementById('paymentBrick_container');
+      if (container) container.innerHTML = '';
+    };
+  }, [resultImage, downloadToken]);
+
+  const processPayment = async (formData: any) => {
+    try {
+      const response = await fetch('/api/process-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentData: formData,
+          imageUrl: resultImage
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === 'approved') {
+        setDownloadToken(data.downloadToken);
+      } else {
+        throw new Error(data.detail || 'El pago no pudo ser aprobado.');
+      }
+    } catch (err: any) {
+      throw err;
+    }
   };
 
   const containerVariants = {
@@ -208,28 +299,41 @@ export default function App() {
                     className="glass-card border border-white/60 rounded-[1.5rem] p-6 shadow-2xl space-y-6"
                   >
                     <div className="text-center">
-                      <h3 className="text-3xl font-black font-headline text-primary mb-2">¡EL CAMPEÓN ESTÁ AQUÍ!</h3>
-                      <p className="text-on-surface-variant">Tu retrato del camino a la cuarta estrella.</p>
+                      <h3 className="text-3xl font-black font-headline text-primary mb-2">
+                        {!downloadToken ? '🔒 PAGA PARA DESCARGAR TU RETRATO' : '✅ ¡EL CAMPEÓN ESTÁ AQUÍ!'}
+                      </h3>
+                      <p className="text-on-surface-variant">
+                        {!downloadToken ? 'Hacé tu pago seguro para descargar tu retrato en alta calidad.' : 'Tu retrato del camino a la cuarta estrella.'}
+                      </p>
                     </div>
                     <div className="relative group rounded-xl overflow-hidden shadow-inner bg-black/5">
                       <img 
                         src={resultImage} 
                         alt="AI Generated Champion" 
-                        className="w-full h-auto max-h-[70vh] object-contain mx-auto"
+                        className={`w-full h-auto max-h-[70vh] object-contain mx-auto transition-all duration-500 ${!downloadToken ? 'blur-md select-none pointer-events-none' : ''}`}
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-6">
-                        <a 
-                          href={resultImage} 
-                          download="campeon.png"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="bg-white text-primary font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-fixed transition-colors"
-                        >
-                          <Download className="w-4 h-4" /> Descargar
-                        </a>
-                      </div>
+                      {downloadToken && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-6">
+                          <a 
+                            href={`/api/download?token=${downloadToken}`}
+                            className="bg-white text-primary font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-fixed transition-colors"
+                          >
+                            <Download className="w-4 h-4" /> Descargar
+                          </a>
+                        </div>
+                      )}
                     </div>
+
+                    {!downloadToken && (
+                      <div className="max-w-md mx-auto p-4 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 space-y-4">
+                        <div id="paymentBrick_container" className="bg-white rounded-lg p-2 min-h-[150px]"></div>
+                        {paymentError && (
+                          <p className="text-red-500 text-sm mt-2 text-center font-semibold">{paymentError}</p>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <button 
                         onClick={reset}
@@ -237,12 +341,22 @@ export default function App() {
                       >
                         <RotateCcw className="w-5 h-5" /> Intentar con otra
                       </button>
-                      <button 
-                        className="primary-gradient-bg text-on-primary font-bold px-10 py-3 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all"
-                        onClick={() => window.open(`https://twitter.com/intent/tweet?text=Mirá mi retrato para el camino a la cuarta estrella! 🇦🇷&url=${encodeURIComponent(resultImage)}`, '_blank')}
-                      >
-                        Compartir en redes
-                      </button>
+                      {downloadToken && (
+                        <>
+                          <a
+                            href={`/api/download?token=${downloadToken}`}
+                            className="primary-gradient-bg text-on-primary font-bold px-10 py-3 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+                          >
+                            <Download className="w-5 h-5" /> Descargar Retrato
+                          </a>
+                          <button 
+                            className="border-2 border-primary/20 text-primary font-bold px-10 py-3 rounded-lg hover:bg-primary/5 active:scale-95 transition-all"
+                            onClick={() => window.open(`https://twitter.com/intent/tweet?text=Mirá mi retrato para el camino a la cuarta estrella! 🇦🇷&url=${encodeURIComponent(resultImage)}`, '_blank')}
+                          >
+                            Compartir en redes
+                          </button>
+                        </>
+                      )}
                     </div>
                   </motion.div>
                 ) : (
@@ -304,138 +418,6 @@ export default function App() {
           </footer>
         </section>
       </main>
-    </div>
-  );
-}
-
-import React, { useState, useEffect, useRef } from 'react';
-// ... keep your other imports (lucide-react, motion, etc.)
-
-declare global {
-  interface window {
-    MercadoPago: any;
-  }
-}
-
-export default function App() {
-  const [resultImage, setResultImage] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [downloadToken, setDownloadToken] = useState<string | null>(null);
-  const [paymentError, setPaymentError] = useState<string | null>(null);
-  const brickBuilderRef = useRef<any>(null);
-
-  // Initialize the Payment Brick once the result image preview is generated
-  useEffect(() => {
-    if (!resultImage || downloadToken) return;
-
-    // Initialize Mercado Pago with your Public Key
-    const mp = new window.MercadoPago('YOUR_MERCADO_PAGO_PUBLIC_KEY', {
-      locale: 'es-AR'
-    });
-
-    const bricksBuilder = mp.bricks();
-    brickBuilderRef.current = bricksBuilder;
-
-    const renderPaymentBrick = async () => {
-      await bricksBuilder.create('payment', 'paymentBrick_container', {
-        initialization: {
-          amount: 500, // Cost of the download (e.g., $500 ARS)
-          preferenceId: undefined, // Optional: Use if you generate preferences on backend
-        },
-        customization: {
-          visual: {
-            theme: 'bootstrap', // Fits clean web designs
-          },
-          paymentMethods: {
-            creditCard: 'all',
-            debitCard: 'all',
-            ticket: 'all', // Enables Rapipago / Pago Fácil
-            mercadoPago: 'all', // Enables Mercado Pago Wallet
-          },
-        },
-        callbacks: {
-          onReady: () => {
-            console.log('Payment Brick Ready');
-          },
-          onSubmit: async ({ formData }: any) => {
-            // Triggered when user clicks the "Pay" button inside the Brick
-            return new Promise((resolve, reject) => {
-              processPayment(formData)
-                .then(() => resolve())
-                .catch((err) => {
-                  setPaymentError(err.message);
-                  reject();
-                });
-            });
-          },
-          onError: (error: any) => {
-            console.error('Brick Error:', error);
-          },
-        },
-      });
-    };
-
-    renderPaymentBrick();
-
-    // Cleanup Brick container when component unmounts or changes state
-    return () => {
-      const container = document.getElementById('paymentBrick_container');
-      if (container) container.innerHTML = '';
-    };
-  }, [resultImage, downloadToken]);
-
-  const processPayment = async (formData: any) => {
-    try {
-      const response = await fetch('/api/process-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentData: formData,
-          imageUrl: resultImage // Reference the image they paid for
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.status === 'approved') {
-        // Securely save the dynamic download token returned by the server
-        setDownloadToken(data.downloadToken);
-      } else {
-        throw new Error(data.detail || 'El pago no pudo ser aprobado.');
-      }
-    } catch (err: any) {
-      throw err;
-    }
-  };
-
-  return (
-    <div>
-      {/* ... Your Hero & Generation code ... */}
-
-      {resultImage && (
-        <div className="max-w-md mx-auto p-6 glass-card mt-10">
-          <h3 className="text-xl font-bold text-center mb-4 text-primary">
-            {!downloadToken ? '🔒 PÁGA PARA DESCARGAR TU RETRATO' : '✅ PAGO APROBADO'}
-          </h3>
-          
-          <img src={resultImage} alt="Preview" className="w-full h-auto rounded-lg mb-6 blur-sm select-none" style={downloadToken ? { filter: 'none' } : {}} />
-
-          {/* The Mercado Pago interface will inject itself inside this div */}
-          {!downloadToken && <div id="paymentBrick_container"></div>}
-          
-          {paymentError && <p className="text-red-500 text-sm mt-2">{paymentError}</p>}
-
-          {/* Download button only becomes operational and visible once downloadToken is present */}
-          {downloadToken && (
-            <a
-              href={`/api/download?token=${downloadToken}`}
-              className="w-full py-3 bg-green-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 hover:bg-green-700 transition-colors"
-            >
-              Descargar Retrato en Alta Definición
-            </a>
-          )}
-        </div>
-      )}
     </div>
   );
 }
