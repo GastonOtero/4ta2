@@ -22,7 +22,8 @@ export default function App() {
 
   const [downloadToken, setDownloadToken] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
-  const brickBuilderRef = useRef<any>(null);
+  const [isPaying, setIsPaying] = useState(false);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -84,85 +85,87 @@ export default function App() {
     setError(null);
     setDownloadToken(null);
     setPaymentError(null);
+    setIsPaying(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   useEffect(() => {
-    if (!resultImage || downloadToken) return;
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const paymentId = params.get('payment_id');
+    const preferenceId = params.get('preference_id');
 
-    const mpPublicKey = (import.meta as any).env.VITE_MERCADO_PAGO_PUBLIC_KEY || 'YOUR_MERCADO_PAGO_PUBLIC_KEY';
-    const mp = new window.MercadoPago(mpPublicKey, {
-      locale: 'es-AR'
-    });
+    if (status === 'approved' && paymentId) {
+      const verifyPayment = async () => {
+        setIsVerifyingPayment(true);
+        setPaymentError(null);
+        try {
+          const response = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId,
+              preferenceId: preferenceId || sessionStorage.getItem('mp_preference_id')
+            }),
+          });
 
-    const bricksBuilder = mp.bricks();
-    brickBuilderRef.current = bricksBuilder;
+          const data = await response.json();
+          if (response.ok && data.status === 'approved') {
+            setDownloadToken(data.downloadToken);
+            setResultImage(data.imageUrl);
+          } else {
+            throw new Error(data.error || data.detail || 'El pago no pudo ser verificado.');
+          }
+        } catch (err: any) {
+          console.error(err);
+          setPaymentError(err.message || 'Error al verificar el pago con Mercado Pago.');
+        } finally {
+          setIsVerifyingPayment(false);
+          // Clear query params to avoid re-triggering and clean the URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+          sessionStorage.removeItem('mp_preference_id');
+        }
+      };
 
-    const renderPaymentBrick = async () => {
-      await bricksBuilder.create('payment', 'paymentBrick_container', {
-        initialization: {
-          amount: 500, // Price in ARS
-        },
-        customization: {
-          visual: {
-            theme: 'bootstrap',
-          },
-          paymentMethods: {
-            creditCard: 'all',
-            debitCard: 'all',
-            ticket: 'all',
-            mercadoPago: 'all',
-          },
-        },
-        callbacks: {
-          onReady: () => {
-            console.log('Payment Brick Ready');
-          },
-          onSubmit: async ({ formData }: any) => {
-            return new Promise<void>((resolve, reject) => {
-              processPayment(formData)
-                .then(() => resolve())
-                .catch((err) => {
-                  setPaymentError(err.message);
-                  reject();
-                });
-            });
-          },
-          onError: (error: any) => {
-            console.error('Brick Error:', error);
-          },
-        },
-      });
-    };
+      verifyPayment();
+    } else if (status === 'failed') {
+      setPaymentError('El pago fue rechazado. Por favor, intenta de nuevo.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      sessionStorage.removeItem('mp_preference_id');
+    } else if (status === 'pending') {
+      setPaymentError('El pago está pendiente de confirmación.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      sessionStorage.removeItem('mp_preference_id');
+    }
+  }, []);
 
-    renderPaymentBrick();
+  const startCheckoutPro = async () => {
+    if (!resultImage) return;
+    setIsPaying(true);
+    setPaymentError(null);
 
-    return () => {
-      const container = document.getElementById('paymentBrick_container');
-      if (container) container.innerHTML = '';
-    };
-  }, [resultImage, downloadToken]);
-
-  const processPayment = async (formData: any) => {
     try {
-      const response = await fetch('/api/process-payment', {
+      const response = await fetch('/api/create-preference', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentData: formData,
-          imageUrl: resultImage
-        }),
+        body: JSON.stringify({ imageUrl: resultImage }),
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error('No se pudo iniciar el pago. Intenta nuevamente.');
+      }
 
-      if (response.ok && data.status === 'approved') {
-        setDownloadToken(data.downloadToken);
+      const data = await response.json();
+      if (data.initPoint) {
+        sessionStorage.setItem('mp_preference_id', data.preferenceId);
+        window.location.href = data.initPoint;
       } else {
-        throw new Error(data.detail || 'El pago no pudo ser aprobado.');
+        throw new Error('Falta el punto de inicio de Mercado Pago.');
       }
     } catch (err: any) {
-      throw err;
+      console.error(err);
+      setPaymentError(err.message || 'Error al conectar con Mercado Pago.');
+      setIsPaying(false);
     }
   };
 
@@ -183,6 +186,28 @@ export default function App() {
 
   return (
     <div id="main-container" className="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container min-h-screen overflow-x-hidden">
+      {isVerifyingPayment && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-6">
+          <div className="glass-card border border-white/60 rounded-[1.5rem] p-12 max-w-md w-full shadow-2xl text-center space-y-6">
+            <div className="relative w-32 h-32 mx-auto">
+              <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+              <motion.div 
+                className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center text-primary">
+                <ShieldCheck className="w-12 h-12" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold font-headline text-primary">Verificando tu pago...</h3>
+              <p className="text-on-surface-variant">Estamos confirmando la transacción de forma segura con Mercado Pago.</p>
+              <p className="text-xs text-on-surface-variant/70">Esto tomará sólo unos segundos. Por favor no cierres esta ventana.</p>
+            </div>
+          </div>
+        </div>
+      )}
       <main>
         {/* Top Third: Hero Section */}
         <section id="hero" className="relative min-h-[60vh] flex items-center hero-gradient pt-20 overflow-hidden">
@@ -326,8 +351,26 @@ export default function App() {
                     </div>
 
                     {!downloadToken && (
-                      <div className="max-w-md mx-auto p-4 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 space-y-4">
-                        <div id="paymentBrick_container" className="bg-white rounded-lg p-2 min-h-[150px]"></div>
+                      <div className="max-w-md mx-auto p-6 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 space-y-4 text-center">
+                        <button
+                          onClick={startCheckoutPro}
+                          disabled={isPaying || isVerifyingPayment}
+                          className="w-full primary-gradient-bg text-on-primary font-bold px-8 py-4 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                        >
+                          {isPaying ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              <span>Conectando...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>💳 Pagar con Mercado Pago</span>
+                            </>
+                          )}
+                        </button>
+                        <p className="text-xs text-on-surface-variant font-medium">
+                          Monto total: $500 ARS • Procesamiento seguro por Mercado Pago
+                        </p>
                         {paymentError && (
                           <p className="text-red-500 text-sm mt-2 text-center font-semibold">{paymentError}</p>
                         )}

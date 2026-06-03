@@ -17,6 +17,7 @@ const upload = multer({
 // A temporary server cache to keep track of active, valid download tokens
 // For production scale, map this out to a Firestore database instead!
 const validDownloadTokens = new Map();
+const verifiedPaymentIds = new Set();
 async function startServer() {
     const app = express();
     const PORT = parseInt(process.env.PORT || "3000");
@@ -122,34 +123,95 @@ Subject fully visible and in foreground.`;
             res.status(500).json({ error: error.message || "Failed to generate image" });
         }
     });
-    // 1. Payment processing endpoint
-    app.post('/api/process-payment', async (req, res) => {
-        const { paymentData, imageUrl } = req.body;
+    // 1. Create Preference Endpoint for Checkout Pro
+    app.post('/api/create-preference', async (req, res) => {
+        const { imageUrl } = req.body;
+        if (!imageUrl) {
+            return res.status(400).json({ error: 'Image URL is required' });
+        }
         try {
             const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 'YOUR_MERCADO_PAGO_PRIVATE_ACCESS_TOKEN';
-            // Send request directly to Mercado Pago API using your Private Access Token
-            const mpResponse = await fetch('https://api.mercadopago.com/v1/payments', {
+            // Determine origin to redirect back to
+            const origin = req.headers.origin || process.env.APP_URL || 'http://localhost:3000';
+            const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
-                    'X-Idempotency-Key': crypto.randomUUID() // Mandatory safety parameter for MP
                 },
                 body: JSON.stringify({
-                    token: paymentData.token,
-                    issuer_id: paymentData.issuer_id,
-                    payment_method_id: paymentData.payment_method_id,
-                    transaction_amount: paymentData.transaction_amount,
-                    installments: paymentData.installments,
-                    description: 'Descarga de Retrato Camiseta Argentina',
-                    payer: {
-                        email: paymentData.payer.email,
-                        identification: paymentData.payer.identification
-                    }
+                    items: [
+                        {
+                            title: 'Descarga de Retrato Camiseta Argentina',
+                            quantity: 1,
+                            unit_price: 500,
+                            currency_id: 'ARS',
+                        }
+                    ],
+                    metadata: {
+                        image_url: imageUrl,
+                    },
+                    back_urls: {
+                        success: `${origin}/`,
+                        failure: `${origin}/`,
+                        pending: `${origin}/`,
+                    },
+                    auto_return: 'approved',
                 })
             });
+            if (!mpResponse.ok) {
+                const errorText = await mpResponse.text();
+                console.error('Mercado Pago Preference Error Response:', errorText);
+                return res.status(500).json({ error: 'Failed to create payment preference' });
+            }
+            const preference = await mpResponse.json();
+            res.status(200).json({
+                preferenceId: preference.id,
+                initPoint: preference.init_point,
+                sandboxInitPoint: preference.sandbox_init_point
+            });
+        }
+        catch (error) {
+            console.error('Preference Creation Error:', error);
+            res.status(500).json({ error: 'Internal server error while creating preference' });
+        }
+    });
+    // 2. Verify Payment Endpoint
+    app.post('/api/verify-payment', async (req, res) => {
+        const { paymentId, preferenceId } = req.body;
+        if (!paymentId) {
+            return res.status(400).json({ error: 'Payment ID is required' });
+        }
+        if (verifiedPaymentIds.has(paymentId)) {
+            return res.status(400).json({ error: 'This payment has already been verified and processed.' });
+        }
+        try {
+            const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 'YOUR_MERCADO_PAGO_PRIVATE_ACCESS_TOKEN';
+            const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                }
+            });
+            if (!mpResponse.ok) {
+                const errorText = await mpResponse.text();
+                console.error('Mercado Pago Payment Verification Error:', errorText);
+                return res.status(400).json({ error: 'Failed to fetch payment details from Mercado Pago.' });
+            }
             const paymentResult = await mpResponse.json();
             if (paymentResult.status === 'approved') {
+                // Validate preference ID if check is possible
+                if (preferenceId && paymentResult.order?.id && paymentResult.preference_id !== preferenceId) {
+                    console.warn(`Preference ID mismatch: expected ${preferenceId}, got ${paymentResult.preference_id}`);
+                }
+                // Get image URL from metadata
+                const imageUrl = paymentResult.metadata?.image_url || paymentResult.metadata?.imageUrl;
+                if (!imageUrl) {
+                    console.error('Payment verified but no imageUrl found in metadata:', paymentResult.metadata);
+                    return res.status(400).json({ error: 'No image associated with this payment.' });
+                }
+                // Mark as verified
+                verifiedPaymentIds.add(paymentId);
                 // Create a secure, random dynamic token for the download
                 const downloadToken = crypto.randomBytes(32).toString('hex');
                 // Store the token mapped to the image URL, expiring in 15 minutes
@@ -159,19 +221,20 @@ Subject fully visible and in foreground.`;
                 });
                 res.status(200).json({
                     status: 'approved',
-                    downloadToken: downloadToken
+                    downloadToken: downloadToken,
+                    imageUrl: imageUrl
                 });
             }
             else {
                 res.status(400).json({
                     status: paymentResult.status,
-                    detail: paymentResult.status_detail || 'Pago rechazado o pendiente.'
+                    detail: paymentResult.status_detail || 'El pago no ha sido aprobado.'
                 });
             }
         }
         catch (error) {
-            console.error('Mercado Pago Gateway Error:', error);
-            res.status(500).json({ error: 'Internal server payment error' });
+            console.error('Payment Verification Error:', error);
+            res.status(500).json({ error: 'Internal server error during verification.' });
         }
     });
     // 2. Token-gated download endpoint
