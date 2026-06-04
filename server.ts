@@ -12,12 +12,12 @@ import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 dotenv.config();
 
 // Initialize Mercado Pago Client
-const mpAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 'YOUR_MERCADO_PAGO_PRIVATE_ACCESS_TOKEN';
+const mpAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 'APP_USR-3903854788162593-060314-8d067d6f680644136840eb317b2c10e2-3448792818';
 const mpClient = new MercadoPagoConfig({ accessToken: mpAccessToken });
 const mpPreference = new Preference(mpClient);
 const mpPayment = new Payment(mpClient);
 
-const upload = multer({ 
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 50 * 1024 * 1024 // 50MB
@@ -69,7 +69,7 @@ async function startServer() {
 
       // Try to load reference images from the repository
       const refImages: string[] = [base64Image1];
-      
+
       const loadRefImage = (fileName: string) => {
         try {
           const filePath = path.join(process.cwd(), 'reference-images', fileName);
@@ -226,11 +226,11 @@ Subject fully visible and in foreground.`;
 
         // Create a secure, random dynamic token for the download
         const downloadToken = crypto.randomBytes(32).toString('hex');
-        
+
         // Store the token mapped to the image URL, expiring in 15 minutes
         validDownloadTokens.set(downloadToken, {
           imageUrl: imageUrl,
-          expiresAt: Date.now() + 15 * 60 * 1000 
+          expiresAt: Date.now() + 15 * 60 * 1000
         });
 
         res.status(200).json({
@@ -271,7 +271,7 @@ Subject fully visible and in foreground.`;
     try {
       // Fetch the target image from cloud storage (e.g., fal.ai or Cloudflare R2 bucket)
       const imageResponse = await fetch(tokenRecord.imageUrl);
-      
+
       if (!imageResponse.ok) throw new Error('Failed to fetch image binary source');
 
       // Force download headers instead of opening inline script assets
@@ -281,7 +281,7 @@ Subject fully visible and in foreground.`;
       // Stream the image file buffer down to the client connection frame
       const arrayBuffer = await imageResponse.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      
+
       // Optional: Delete the token immediately after use to prevent re-use sharing
       validDownloadTokens.delete(token);
 
