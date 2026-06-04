@@ -7,8 +7,15 @@ import cors from "cors";
 import { fal } from "@fal-ai/client";
 import dotenv from "dotenv";
 import crypto from 'crypto';
+import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 
 dotenv.config();
+
+// Initialize Mercado Pago Client
+const mpAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 'YOUR_MERCADO_PAGO_PRIVATE_ACCESS_TOKEN';
+const mpClient = new MercadoPagoConfig({ accessToken: mpAccessToken });
+const mpPreference = new Preference(mpClient);
+const mpPayment = new Payment(mpClient);
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -147,20 +154,14 @@ Subject fully visible and in foreground.`;
     }
 
     try {
-      const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 'YOUR_MERCADO_PAGO_PRIVATE_ACCESS_TOKEN';
-      
       // Determine origin to redirect back to
       const origin = req.headers.origin || process.env.APP_URL || 'http://localhost:3000';
 
-      const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const preferenceResult = await mpPreference.create({
+        body: {
           items: [
             {
+              id: 'portrait-download',
               title: 'Descarga de Retrato Camiseta Argentina',
               quantity: 1,
               unit_price: 500,
@@ -176,20 +177,13 @@ Subject fully visible and in foreground.`;
             pending: `${origin}/`,
           },
           auto_return: 'approved',
-        })
+        }
       });
 
-      if (!mpResponse.ok) {
-        const errorText = await mpResponse.text();
-        console.error('Mercado Pago Preference Error Response:', errorText);
-        return res.status(500).json({ error: 'Failed to create payment preference' });
-      }
-
-      const preference = await mpResponse.json();
       res.status(200).json({
-        preferenceId: preference.id,
-        initPoint: preference.init_point,
-        sandboxInitPoint: preference.sandbox_init_point
+        preferenceId: preferenceResult.id,
+        initPoint: preferenceResult.init_point,
+        sandboxInitPoint: preferenceResult.sandbox_init_point
       });
 
     } catch (error) {
@@ -211,27 +205,12 @@ Subject fully visible and in foreground.`;
     }
 
     try {
-      const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 'YOUR_MERCADO_PAGO_PRIVATE_ACCESS_TOKEN';
-
-      const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        }
-      });
-
-      if (!mpResponse.ok) {
-        const errorText = await mpResponse.text();
-        console.error('Mercado Pago Payment Verification Error:', errorText);
-        return res.status(400).json({ error: 'Failed to fetch payment details from Mercado Pago.' });
-      }
-
-      const paymentResult = await mpResponse.json();
+      const paymentResult = await mpPayment.get({ id: paymentId });
 
       if (paymentResult.status === 'approved') {
         // Validate preference ID if check is possible
-        if (preferenceId && paymentResult.order?.id && paymentResult.preference_id !== preferenceId) {
-          console.warn(`Preference ID mismatch: expected ${preferenceId}, got ${paymentResult.preference_id}`);
+        if (preferenceId && paymentResult.order?.id && (paymentResult as any).preference_id !== preferenceId) {
+          console.warn(`Preference ID mismatch: expected ${preferenceId}, got ${(paymentResult as any).preference_id}`);
         }
 
         // Get image URL from metadata
