@@ -28,6 +28,34 @@ const upload = multer({
 // For production scale, map this out to a Firestore database instead!
 const validDownloadTokens = new Map<string, { imageUrl: string; expiresAt: number }>();
 const verifiedPaymentIds = new Set<string>();
+const paymentToToken = new Map<string, string>();
+
+function processApprovedPayment(paymentId: string, imageUrl: string): string {
+  const existingToken = paymentToToken.get(paymentId);
+  if (existingToken) {
+    const tokenRecord = validDownloadTokens.get(existingToken);
+    if (tokenRecord && Date.now() < tokenRecord.expiresAt) {
+      return existingToken;
+    }
+  }
+
+  // Mark as verified
+  verifiedPaymentIds.add(paymentId);
+
+  // Create a secure, random dynamic token for the download
+  const downloadToken = crypto.randomBytes(32).toString('hex');
+
+  // Store the token mapped to the image URL, expiring in 15 minutes
+  validDownloadTokens.set(downloadToken, {
+    imageUrl: imageUrl,
+    expiresAt: Date.now() + 15 * 60 * 1000
+  });
+
+  // Map paymentId to the token
+  paymentToToken.set(paymentId, downloadToken);
+
+  return downloadToken;
+}
 
 async function startServer() {
   const app = express();
@@ -156,6 +184,13 @@ Subject fully visible and in foreground.`;
     try {
       // Determine origin to redirect back to
       const origin = req.headers.origin || process.env.APP_URL || 'http://localhost:3000';
+      const webhookUrl = process.env.APP_URL
+        ? `${process.env.APP_URL}/api/webhook/mercadopago`
+        : `${origin}/api/webhook/mercadopago`;
+
+      if (webhookUrl.includes('localhost') || webhookUrl.includes('127.0.0.1')) {
+        console.warn('Warning: Webhook notifications URL is local. Mercado Pago will not be able to send webhooks to localhost without a tunnel.');
+      }
 
       const preferenceResult = await mpPreference.create({
         body: {
@@ -164,7 +199,7 @@ Subject fully visible and in foreground.`;
               id: 'portrait-download',
               title: 'Descarga de Retrato Camiseta Argentina',
               quantity: 1,
-              unit_price: 500,
+              unit_price: 1000,
               currency_id: 'ARS',
             }
           ],
@@ -177,6 +212,7 @@ Subject fully visible and in foreground.`;
             pending: `${origin}/`,
           },
           auto_return: 'approved',
+          notification_url: webhookUrl,
         }
       });
 
@@ -192,6 +228,78 @@ Subject fully visible and in foreground.`;
     }
   });
 
+  // Webhook Receiver Endpoint for Mercado Pago
+  app.post('/api/webhook/mercadopago', async (req: Request, res: Response) => {
+    // 1. Respond 200 OK immediately to Mercado Pago to acknowledge receipt
+    res.status(200).send('OK');
+
+    // 2. Validate signature if secret is configured
+    const webhookSecret = process.env.MERCADO_PAGO_WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const xSignature = req.headers['x-signature'] as string;
+      const xRequestId = req.headers['x-request-id'] as string;
+      const dataID = req.query['data.id'] || (req.query.data as any)?.id || req.body.data?.id;
+
+      if (!xSignature || !xRequestId) {
+        console.error('Webhook verification failed: Missing signature or request ID headers');
+        return;
+      }
+
+      try {
+        const parts = xSignature.split(',');
+        let ts = '';
+        let hash = '';
+        parts.forEach(part => {
+          const [key, value] = part.split('=');
+          if (key && value) {
+            const trimmedKey = key.trim();
+            const trimmedValue = value.trim();
+            if (trimmedKey === 'ts') ts = trimmedValue;
+            else if (trimmedKey === 'v1') hash = trimmedValue;
+          }
+        });
+
+        const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`;
+        const hmac = crypto.createHmac('sha256', webhookSecret);
+        hmac.update(manifest);
+        const sha = hmac.digest('hex');
+
+        if (sha !== hash) {
+          console.error('Webhook verification failed: Signature mismatch');
+          return;
+        }
+      } catch (err) {
+        console.error('Webhook signature parsing error:', err);
+        return;
+      }
+    }
+
+    // 3. Process the event
+    try {
+      const { type, data } = req.body;
+      if (type === 'payment' && data?.id) {
+        const paymentId = data.id;
+        console.log(`Processing webhook payment notification for ID: ${paymentId}`);
+
+        const paymentResult = await mpPayment.get({ id: paymentId });
+
+        if (paymentResult.status === 'approved') {
+          const imageUrl = paymentResult.metadata?.image_url || paymentResult.metadata?.imageUrl;
+          if (imageUrl) {
+            const token = processApprovedPayment(paymentId, imageUrl);
+            console.log(`Webhook successfully processed payment ${paymentId}. Generated token: ${token}`);
+          } else {
+            console.error(`Payment ${paymentId} verified but no imageUrl found in metadata.`);
+          }
+        } else {
+          console.log(`Payment ${paymentId} status is: ${paymentResult.status}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+    }
+  });
+
   // 2. Verify Payment Endpoint
   app.post('/api/verify-payment', async (req: Request, res: Response) => {
     const { paymentId, preferenceId } = req.body;
@@ -200,8 +308,17 @@ Subject fully visible and in foreground.`;
       return res.status(400).json({ error: 'Payment ID is required' });
     }
 
-    if (verifiedPaymentIds.has(paymentId)) {
-      return res.status(400).json({ error: 'This payment has already been verified and processed.' });
+    // Check if the payment has already been verified/processed (by webhook or concurrent request)
+    const existingToken = paymentToToken.get(paymentId);
+    if (existingToken) {
+      const tokenRecord = validDownloadTokens.get(existingToken);
+      if (tokenRecord && Date.now() < tokenRecord.expiresAt) {
+        return res.status(200).json({
+          status: 'approved',
+          downloadToken: existingToken,
+          imageUrl: tokenRecord.imageUrl
+        });
+      }
     }
 
     try {
@@ -221,17 +338,8 @@ Subject fully visible and in foreground.`;
           return res.status(400).json({ error: 'No image associated with this payment.' });
         }
 
-        // Mark as verified
-        verifiedPaymentIds.add(paymentId);
-
-        // Create a secure, random dynamic token for the download
-        const downloadToken = crypto.randomBytes(32).toString('hex');
-
-        // Store the token mapped to the image URL, expiring in 15 minutes
-        validDownloadTokens.set(downloadToken, {
-          imageUrl: imageUrl,
-          expiresAt: Date.now() + 15 * 60 * 1000
-        });
+        // Process the approved payment and get the download token
+        const downloadToken = processApprovedPayment(paymentId, imageUrl);
 
         res.status(200).json({
           status: 'approved',
