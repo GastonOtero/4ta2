@@ -6,7 +6,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw } from 'lucide-react';
 import React, { useState, useRef, ChangeEvent } from 'react';
-import heroBg from './assets/hero-bg.svg';
+import heroBg from './assets/estadio copa.jpg';
 
 export default function App() {
   const [isHovered, setIsHovered] = useState(false);
