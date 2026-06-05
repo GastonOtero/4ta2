@@ -6,6 +6,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw } from 'lucide-react';
 import React, { useState, useRef, ChangeEvent } from 'react';
+import heroBg from './assets/hero-bg.svg';
 
 export default function App() {
   const [isHovered, setIsHovered] = useState(false);
@@ -96,12 +97,11 @@ export default function App() {
         {/* Top Third: Hero Section */}
         <section id="hero" className="relative min-h-[45vh] sm:min-h-[55vh] flex items-center hero-gradient pt-16 sm:pt-20 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none z-10"></div>
-          <div className="absolute inset-0 opacity-20 z-0">
+          <div className="absolute inset-0 opacity-30 z-0">
             <img 
-              alt="Wide angle shot of a massive modern soccer stadium filled with fans" 
+              alt="Hero background with stadium-inspired gradient" 
               className="w-full h-full object-cover" 
-              src="https://lh3.googleusercontent.com/aida/ADBb0uivVQKgSxi8EzJbJLw6Mwzs9tptDN5QqYwn-n5M35bbrojW9DK0HvVqFnzJxTW-3cqhuzxbIleEY9vGaToAYAgeTVuJwu0LuKPbg8aDZa3RON-TwLJ7eZuSQpRAv2D72P3buZIPxt4udGjiEJFK5H_x4NOwVry8CEFI7kVR3f7Zn-6x2NJj9uAq-1UZDjeiKvdwzU4tYQ0yZ9nqzfsMrmQAJseIsGbYH8Aq2-6EeEKjVbchgdB_TsrGoTiy2NTSTCIGdNZEyjbboIo"
-              referrerPolicy="no-referrer"
+              src={heroBg}
             />
           </div>
           <motion.div 
