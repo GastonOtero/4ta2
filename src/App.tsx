@@ -94,7 +94,7 @@ export default function App() {
     <div id="main-container" className="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container min-h-screen overflow-x-hidden">
       <main>
         {/* Top Third: Hero Section */}
-        <section id="hero" className="relative min-h-[60vh] flex items-center hero-gradient pt-20 overflow-hidden">
+        <section id="hero" className="relative min-h-[45vh] sm:min-h-[55vh] flex items-center hero-gradient pt-16 sm:pt-20 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none z-10"></div>
           <div className="absolute inset-0 opacity-20 z-0">
             <img 
@@ -112,8 +112,8 @@ export default function App() {
           >
             <motion.h1 
               variants={itemVariants}
-              className="text-6xl lg:text-9xl font-normal font-display mb-6 tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] glimmer-text leading-tight"
-              style={{ fontSize: 'clamp(4rem, 10vw, 8rem)', transform: 'translateY(-10%)' }}
+              className="text-5xl sm:text-6xl md:text-7xl font-normal font-display mb-6 tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] glimmer-text leading-tight"
+              style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)', transform: 'translateY(-8%)' }}
             >
               VAMOS POR LA CUARTA
             </motion.h1>
@@ -126,47 +126,9 @@ export default function App() {
           </motion.div>
         </section>
 
-        {/* Middle Third: Video Placeholder */}
-        {!resultImage && (
-          <section id="video-section" className="relative min-h-[60vh] flex items-center bg-white sun-of-may-bg py-24">
-            <div className="max-w-5xl mx-auto px-6 w-full">
-              <motion.div 
-                id="video-player"
-                className="relative w-full aspect-video bg-surface-container rounded-[2rem] shadow-2xl overflow-hidden border border-outline-variant/30 flex items-center justify-center group cursor-pointer"
-                whileHover={{ scale: 1.02 }}
-                onHoverStart={() => setIsHovered(true)}
-                onHoverEnd={() => setIsHovered(false)}
-              >
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
-                <img 
-                  alt="Stadium atmosphere background for video" 
-                  className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXioJ29dRu_tItqcGH7wwuTN7a2qWIdvtSVAdIZ35-PRL9KPBRQ9yVBhqaKayN-1GG8g263Z56A4mynJqKpJWlxC0YKR7LzLSRPMPckXvUrPwWC2FfGeMhw8ySIgalawkB0JkBF7W6WJmB6vOdpfU6v2MeYiMN8P1kg4R5Sl06o52jjfP-y0Pz5z4G7soNMQVCl7QavJxPRX-V3LwOn4SnnnA8iZjQc94520xccQEJQKPQi4-_gPXsctAAl4uxmjTvMCYM6B-Q5wxm" 
-                  referrerPolicy="no-referrer"
-                />
-                <motion.div 
-                  className="relative z-10 w-20 h-20 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl"
-                  animate={{ scale: isHovered ? 1.1 : 1 }}
-                >
-                  <Play className="text-primary w-10 h-10 fill-primary" />
-                </motion.div>
-                <div className="absolute bottom-8 left-8 right-8 z-10 flex justify-between items-end">
-                  <div className="text-on-surface">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Trailer Oficial</p>
-                    <h4 className="text-xl font-bold font-headline">El Camino a la Gloria</h4>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold text-on-surface border border-white/30">4K ULTRA HD</span>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </section>
-        )}
-
         {/* Upload/Result Interface */}
         <section id="upload-section" className="relative min-h-[80vh] flex flex-col hero-gradient border-t border-white/20">
-          <div className="flex-grow flex items-center justify-center py-20 px-6">
+          <div className="flex-grow flex items-center justify-center py-16 sm:py-20 px-6">
             <div className="max-w-4xl mx-auto w-full">
               <AnimatePresence mode="wait">
                 {isProcessing ? (
@@ -291,7 +253,46 @@ export default function App() {
               </AnimatePresence>
             </div>
           </div>
-          
+        </section>
+
+        {/* Lowered Mockup Video */}
+        {!resultImage && (
+          <section id="video-section" className="relative min-h-[60vh] flex items-center bg-white sun-of-may-bg py-16 sm:py-24">
+            <div className="max-w-5xl mx-auto px-6 w-full">
+              <motion.div 
+                id="video-player"
+                className="relative w-full aspect-video bg-surface-container rounded-[2rem] shadow-2xl overflow-hidden border border-outline-variant/30 flex items-center justify-center group cursor-pointer"
+                whileHover={{ scale: 1.02 }}
+                onHoverStart={() => setIsHovered(true)}
+                onHoverEnd={() => setIsHovered(false)}
+              >
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
+                <img 
+                  alt="Stadium atmosphere background for video" 
+                  className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXioJ29dRu_tItqcGH7wwuTN7a2qWIdvtSVAdIZ35-PRL9KPBRQ9yVBhqaKayN-1GG8g263Z56A4mynJqKpJWlxC0YKR7LzLSRPMPckXvUrPwWC2FfGeMhw8ySIgalawkB0JkBF7W6WJmB6vOdpfU6v2MeYiMN8P1kg4R5Sl06o52jjfP-y0Pz5z4G7soNMQVCl7QavJxPRX-V3LwOn4SnnnA8iZjQc94520xccQEJQKPQi4-_gPXsctAAl4uxmjTvMCYM6B-Q5wxm" 
+                  referrerPolicy="no-referrer"
+                />
+                <motion.div 
+                  className="relative z-10 w-20 h-20 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl"
+                  animate={{ scale: isHovered ? 1.1 : 1 }}
+                >
+                  <Play className="text-primary w-10 h-10 fill-primary" />
+                </motion.div>
+                <div className="absolute bottom-8 left-8 right-8 z-10 flex justify-between items-end">
+                  <div className="text-on-surface">
+                    <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Trailer Oficial</p>
+                    <h4 className="text-xl font-bold font-headline">El Camino a la Gloria</h4>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold text-on-surface border border-white/30">4K ULTRA HD</span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </section>
+        )}
+
           <footer id="main-footer" className="w-full py-12 border-t border-primary/10 mt-auto">
             <div className="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto">
               <div className="mb-4 md:mb-0">
@@ -302,7 +303,6 @@ export default function App() {
               </div>
             </div>
           </footer>
-        </section>
       </main>
     </div>
   );
