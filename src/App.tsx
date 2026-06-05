@@ -117,12 +117,6 @@ export default function App() {
             >
               VAMOS POR LA CUARTA
             </motion.h1>
-            <motion.p 
-              variants={itemVariants}
-              className="text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed font-medium"
-            >
-              Viví la magia de la IA y sé parte del camino del campeón.
-            </motion.p>
           </motion.div>
         </section>
 
