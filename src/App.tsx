@@ -230,10 +230,8 @@ export default function App() {
                         <div className="w-16 h-16 bg-primary-fixed rounded-full flex items-center justify-center mx-auto mb-4 group-hover/upload:scale-110 transition-transform">
                           <CloudUpload className="text-primary w-8 h-8" />
                         </div>
-                        <p className="text-on-surface font-semibold mb-1">Subí tu foto</p>
-                        <p className="text-xs text-on-surface-variant mb-6"></p>
                         <button className="primary-gradient-bg text-on-primary font-bold px-8 py-3 rounded-lg shadow-lg shadow-primary/20 active:scale-95 transition-all w-full md:w-auto">
-                          Seleccionar Archivo
+                          Subí tu foto
                         </button>
                       </div>
                       <div className="mt-6 flex items-center gap-3 text-xs text-on-surface-variant justify-center">
