@@ -206,8 +206,7 @@ export default function App() {
                     <div className="absolute -inset-4 bg-primary/5 rounded-[2rem] blur-2xl group-hover:bg-primary/10 transition-all duration-500"></div>
                     <div className="relative glass-card border border-white/60 rounded-[1.5rem] p-8 shadow-xl">
                       <div className="text-center mb-6">
-                        <h3 className="text-2xl font-bold font-headline text-primary">Empezá tu camino</h3>
-                        <p className="text-sm text-on-surface-variant">Procesamiento rápido, resultados cinematográficos</p>
+                        <h3 className="text-2xl font-bold font-headline text-primary">Sumate a alentar al campeón</h3>
                       </div>
                       
                       {error && (
@@ -231,15 +230,13 @@ export default function App() {
                         <div className="w-16 h-16 bg-primary-fixed rounded-full flex items-center justify-center mx-auto mb-4 group-hover/upload:scale-110 transition-transform">
                           <CloudUpload className="text-primary w-8 h-8" />
                         </div>
-                        <p className="text-on-surface font-semibold mb-1">Arrastrá y soltá tu foto</p>
-                        <p className="text-xs text-on-surface-variant mb-6">Los retratos en alta resolución funcionan mejor (JPG, PNG)</p>
+                        <p className="text-on-surface font-semibold mb-1">Subí tu foto</p>
+                        <p className="text-xs text-on-surface-variant mb-6"></p>
                         <button className="primary-gradient-bg text-on-primary font-bold px-8 py-3 rounded-lg shadow-lg shadow-primary/20 active:scale-95 transition-all w-full md:w-auto">
                           Seleccionar Archivo
                         </button>
                       </div>
                       <div className="mt-6 flex items-center gap-3 text-xs text-on-surface-variant justify-center">
-                        <ShieldCheck className="w-4 h-4 text-primary" />
-                        Tu privacidad es nuestra prioridad. Las fotos se procesan y eliminan en 24 horas.
                       </div>
                     </div>
                   </div>
