@@ -112,7 +112,7 @@ export default function App() {
           >
             <motion.h1 
               variants={itemVariants}
-              className="text-5xl sm:text-6xl md:text-7xl font-normal font-display mb-6 tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] glimmer-text leading-tight"
+              className="text-5xl sm:text-6xl md:text-7xl font-normal font-display hero-heading mb-6 tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] glimmer-text leading-tight"
               style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)', transform: 'translateY(-8%)' }}
             >
               VAMOS POR LA CUARTA
