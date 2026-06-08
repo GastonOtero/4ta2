@@ -285,10 +285,9 @@ export default function App() {
           <footer id="main-footer" className="w-full py-12 border-t border-primary/10 mt-auto">
             <div className="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto">
               <div className="mb-4 md:mb-0">
-                <div className="font-headline font-black text-primary text-xl">Vamos por la cuarta</div>
               </div>
               <div className="text-on-surface-variant font-body text-sm">
-                © 2024 Vamos por la cuarta. Hecho para los campeones.
+                © 2026 Vamos por la cuarta. Hecho para los campeones.
               </div>
             </div>
           </footer>
