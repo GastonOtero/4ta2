@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Babas+Neue&family=Bangers&family=Lexend:wght@400;700;800;900&family=Manrope:wght@400;500;600;700&family=Notable&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Lexend:wght@400;700;800;900&family=Manrope:wght@400;500;600;700&family=Notable&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-headline: "Lexend", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Babas Neue", "Notable", "Bangers", cursive;
+  --font-display: "Notable", "Bangers", cursive;
 
   /* Theme Colors */
   --color-primary: #28628f;
@@ -37,10 +37,6 @@
 
   .primary-gradient-bg {
     background: linear-gradient(135deg, #28628f 0%, #75aadb 100%);
-  }
-
-  .hero-heading {
-    font-family: "Babas Neue", "Notable", "Bangers", cursive;
   }
 
   .sun-of-may-bg {
