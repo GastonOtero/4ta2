@@ -4,12 +4,11 @@
  */
 
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw } from 'lucide-react';
+import { CloudUpload, ShieldCheck, Loader2, Download, RotateCcw } from 'lucide-react';
 import React, { useState, useRef, ChangeEvent } from 'react';
 import heroBg from './assets/estadio copa.jpg';
 
 export default function App() {
-  const [isHovered, setIsHovered] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -217,7 +216,7 @@ export default function App() {
 
                       <div 
                         id="dropzone"
-                        className="border-2 border-dashed border-primary/20 rounded-xl bg-white/30 p-12 text-center transition-all duration-300 hover:border-primary/50 hover:bg-white/80 cursor-pointer group/upload"
+                        className="border-2 border-dashed border-primary/20 rounded-xl bg-white p-12 text-center transition-all duration-300 hover:border-primary/50 hover:bg-white/80 cursor-pointer group/upload"
                         onClick={handleUploadClick}
                       >
                         <input 
@@ -244,43 +243,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* Lowered Mockup Video */}
-        {!resultImage && (
-          <section id="video-section" className="relative min-h-[60vh] flex items-center bg-white sun-of-may-bg py-16 sm:py-24">
-            <div className="max-w-5xl mx-auto px-6 w-full">
-              <motion.div 
-                id="video-player"
-                className="relative w-full aspect-video bg-surface-container rounded-[2rem] shadow-2xl overflow-hidden border border-outline-variant/30 flex items-center justify-center group cursor-pointer"
-                whileHover={{ scale: 1.02 }}
-                onHoverStart={() => setIsHovered(true)}
-                onHoverEnd={() => setIsHovered(false)}
-              >
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
-                <img 
-                  alt="Stadium atmosphere background for video" 
-                  className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXioJ29dRu_tItqcGH7wwuTN7a2qWIdvtSVAdIZ35-PRL9KPBRQ9yVBhqaKayN-1GG8g263Z56A4mynJqKpJWlxC0YKR7LzLSRPMPckXvUrPwWC2FfGeMhw8ySIgalawkB0JkBF7W6WJmB6vOdpfU6v2MeYiMN8P1kg4R5Sl06o52jjfP-y0Pz5z4G7soNMQVCl7QavJxPRX-V3LwOn4SnnnA8iZjQc94520xccQEJQKPQi4-_gPXsctAAl4uxmjTvMCYM6B-Q5wxm" 
-                  referrerPolicy="no-referrer"
-                />
-                <motion.div 
-                  className="relative z-10 w-20 h-20 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl"
-                  animate={{ scale: isHovered ? 1.1 : 1 }}
-                >
-                  <Play className="text-primary w-10 h-10 fill-primary" />
-                </motion.div>
-                <div className="absolute bottom-8 left-8 right-8 z-10 flex justify-between items-end">
-                  <div className="text-on-surface">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Trailer Oficial</p>
-                    <h4 className="text-xl font-bold font-headline">El Camino a la Gloria</h4>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold text-on-surface border border-white/30">4K ULTRA HD</span>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </section>
-        )}
+        {/* Lowered Mockup Video removed per request */}
 
           <footer id="main-footer" className="w-full py-12 border-t border-primary/10 mt-auto">
             <div className="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto">
