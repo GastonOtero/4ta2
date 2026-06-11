@@ -20,9 +20,12 @@
     },
     "outDir": "dist-server",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
-    "server.ts"
+    "server.ts",
+    "src/**/*"
   ]
 }

@@ -144,12 +144,12 @@ export default function App() {
               exit={{ scale: 0.95, y: 20 }}
               transition={{ type: "spring", duration: 0.5 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-[#0f172a]/95 text-white rounded-2xl max-w-3xl w-full border border-white/10 shadow-2xl relative flex flex-col overflow-hidden max-h-[90vh]"
+              className="hero-gradient text-on-background rounded-2xl max-w-3xl w-full border border-white/60 shadow-2xl relative flex flex-col overflow-hidden max-h-[90vh]"
             >
               {/* Close Button */}
               <button
                 onClick={closeIntroModal}
-                className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors z-10 cursor-pointer"
+                className="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 text-on-surface-variant hover:text-on-surface transition-colors z-10 cursor-pointer"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -159,16 +159,16 @@ export default function App() {
               <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
                 {/* Header */}
                 <div className="text-center space-y-2 pr-6">
-                  <h2 className="text-3xl sm:text-4xl font-normal font-display tracking-wider drop-shadow-md text-primary-container glimmer-text">
-                    CAMINO A LA CUARTA
+                  <h2 className="text-3xl sm:text-4xl font-normal font-display tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] text-primary glimmer-text">
+                    VAMOS POR LA CUARTA
                   </h2>
-                  <p className="text-sm text-slate-300 font-medium">
-                    Creá tu retrato legendario de campeón con Inteligencia Artificial
+                  <p className="text-sm text-on-surface-variant font-medium">
+                    Subí tu foto y empezá a alentar al campeón
                   </p>
                 </div>
 
                 {/* Video Section */}
-                <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-lg border border-white/10 bg-slate-950">
+                <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-lg border border-white/60 bg-slate-950">
                   <video
                     src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
                     autoPlay
@@ -182,37 +182,37 @@ export default function App() {
 
                 {/* Instructions Section */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary-container">
+                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/60 border border-white/40 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                       <CloudUpload className="w-5 h-5" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-bold text-sm text-slate-200">1. Subí tu foto</h4>
-                      <p className="text-xs text-slate-400">
+                      <h4 className="font-bold text-sm text-on-surface">1. Subí tu foto</h4>
+                      <p className="text-xs text-on-surface-variant">
                         Una selfie clara y de frente para lograr el mejor parecido.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center text-yellow-400">
+                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/60 border border-white/40 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary">
                       <Sparkles className="w-5 h-5" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-bold text-sm text-slate-200">2. Procesá con IA</h4>
-                      <p className="text-xs text-slate-400">
+                      <h4 className="font-bold text-sm text-on-surface">2. Procesá con IA</h4>
+                      <p className="text-xs text-on-surface-variant">
                         Nuestra IA te vestirá y ambientará como un verdadero campeón.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/60 border border-white/40 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-600">
                       <Share2 className="w-5 h-5" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-bold text-sm text-slate-200">3. Compartí la gloria</h4>
-                      <p className="text-xs text-slate-400">
+                      <h4 className="font-bold text-sm text-on-surface">3. Compartí la gloria</h4>
+                      <p className="text-xs text-on-surface-variant">
                         Descargá tu retrato y compartilo en redes para alentar.
                       </p>
                     </div>
@@ -221,13 +221,13 @@ export default function App() {
               </div>
 
               {/* Action Footer */}
-              <div className="p-6 bg-[#090d16] border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <label className="flex items-center gap-3 text-sm text-slate-400 cursor-pointer select-none">
+              <div className="p-6 bg-white/40 border-t border-primary/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <label className="flex items-center gap-3 text-sm text-on-surface-variant cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={dontShowAgain}
                     onChange={(e) => setDontShowAgain(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-primary focus:ring-primary focus:ring-offset-slate-900 cursor-pointer"
+                    className="w-4 h-4 rounded border-primary/20 bg-white text-primary focus:ring-primary focus:ring-offset-white cursor-pointer"
                   />
                   No volver a mostrar
                 </label>
