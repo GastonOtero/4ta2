@@ -120,7 +120,7 @@ export default function App() {
         </section>
 
         {/* Upload/Result Interface */}
-        <section id="upload-section" className="relative min-h-[80vh] flex flex-col hero-gradient border-t border-white/20">
+        <section id="upload-section" className="relative min-h-[80vh] flex flex-col border-t border-white/20">
           <div className="flex-grow flex items-center justify-center py-16 sm:py-20 px-6">
             <div className="max-w-4xl mx-auto w-full">
               <AnimatePresence mode="wait">
