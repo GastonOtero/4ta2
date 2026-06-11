@@ -4,15 +4,52 @@
  */
 
 import { motion, AnimatePresence } from 'motion/react';
-import { CloudUpload, ShieldCheck, Loader2, Download, RotateCcw } from 'lucide-react';
-import React, { useState, useRef, ChangeEvent } from 'react';
+import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw, X, Sparkles, Share2, Info } from 'lucide-react';
+import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 import heroBg from './assets/estadio copa.jpg';
 
 export default function App() {
+  const [isHovered, setIsHovered] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [showIntroModal, setShowIntroModal] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('vamos_intro_seen') !== 'true';
+    }
+    return true;
+  });
+  const [dontShowAgain, setDontShowAgain] = useState(false);
+
+  const closeIntroModal = () => {
+    if (dontShowAgain) {
+      localStorage.setItem('vamos_intro_seen', 'true');
+    }
+    setShowIntroModal(false);
+  };
+
+  useEffect(() => {
+    if (showIntroModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showIntroModal]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeIntroModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [dontShowAgain]);
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -92,6 +129,119 @@ export default function App() {
 
   return (
     <div id="main-container" className="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container min-h-screen overflow-x-hidden">
+      <AnimatePresence>
+        {showIntroModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeIntroModal}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#0f172a]/95 text-white rounded-2xl max-w-3xl w-full border border-white/10 shadow-2xl relative flex flex-col overflow-hidden max-h-[90vh]"
+            >
+              {/* Close Button */}
+              <button
+                onClick={closeIntroModal}
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors z-10 cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Scrollable Container */}
+              <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+                {/* Header */}
+                <div className="text-center space-y-2 pr-6">
+                  <h2 className="text-3xl sm:text-4xl font-normal font-display tracking-wider drop-shadow-md text-primary-container glimmer-text">
+                    CAMINO A LA CUARTA
+                  </h2>
+                  <p className="text-sm text-slate-300 font-medium">
+                    Creá tu retrato legendario de campeón con Inteligencia Artificial
+                  </p>
+                </div>
+
+                {/* Video Section */}
+                <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-lg border border-white/10 bg-slate-950">
+                  <video
+                    src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Instructions Section */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary-container">
+                      <CloudUpload className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-sm text-slate-200">1. Subí tu foto</h4>
+                      <p className="text-xs text-slate-400">
+                        Una selfie clara y de frente para lograr el mejor parecido.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div className="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center text-yellow-400">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-sm text-slate-200">2. Procesá con IA</h4>
+                      <p className="text-xs text-slate-400">
+                        Nuestra IA te vestirá y ambientará como un verdadero campeón.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center text-center space-y-3 p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                      <Share2 className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-sm text-slate-200">3. Compartí la gloria</h4>
+                      <p className="text-xs text-slate-400">
+                        Descargá tu retrato y compartilo en redes para alentar.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Footer */}
+              <div className="p-6 bg-[#090d16] border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <label className="flex items-center gap-3 text-sm text-slate-400 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={dontShowAgain}
+                    onChange={(e) => setDontShowAgain(e.target.checked)}
+                    className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-primary focus:ring-primary focus:ring-offset-slate-900 cursor-pointer"
+                  />
+                  No volver a mostrar
+                </label>
+                <button
+                  onClick={closeIntroModal}
+                  className="primary-gradient-bg text-on-primary font-bold px-8 py-3 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all w-full sm:w-auto cursor-pointer text-center"
+                >
+                  ¡Comenzar ahora!
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <main>
         {/* Top Third: Hero Section */}
         <section id="hero" className="relative min-h-[45vh] sm:min-h-[55vh] flex items-center hero-gradient pt-16 sm:pt-20 overflow-hidden">
@@ -246,11 +396,20 @@ export default function App() {
         {/* Lowered Mockup Video removed per request */}
 
           <footer id="main-footer" className="w-full py-12 border-t border-primary/10 mt-auto">
-            <div className="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto gap-4">
               <div className="mb-4 md:mb-0">
+                <div className="font-headline font-black text-primary text-xl">Vamos por la cuarta</div>
               </div>
-              <div className="text-on-surface-variant font-body text-sm">
-                © 2026 Vamos por la cuarta. Hecho para los campeones.
+              <div className="flex flex-col sm:flex-row items-center gap-4 text-on-surface-variant font-body text-sm">
+                <button
+                  onClick={() => setShowIntroModal(true)}
+                  className="hover:text-primary transition-colors flex items-center gap-1.5 font-medium cursor-pointer"
+                >
+                  <Info className="w-4 h-4" />
+                  Cómo funciona
+                </button>
+                <span className="hidden sm:inline opacity-30">|</span>
+                <span>© 2024 Vamos por la cuarta. Hecho para los campeones.</span>
               </div>
             </div>
           </footer>
