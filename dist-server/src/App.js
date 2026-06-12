@@ -9,7 +9,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 const mpPublicKey = import.meta.env.VITE_MERCADO_PAGO_PUBLIC_KEY || 'APP_USR-e0b0e5bc-6202-4b2a-8d76-e17f7de7517c';
 console.log("Initializing Mercado Pago with Public Key:", mpPublicKey);
-initMercadoPago(mpPublicKey);
+try {
+    initMercadoPago(mpPublicKey);
+}
+catch (e) {
+    console.warn("Mercado Pago initialization warning:", e);
+}
 export default function App() {
     const [isHovered, setIsHovered] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
