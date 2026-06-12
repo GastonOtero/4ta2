@@ -9,6 +9,7 @@ import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
 const mpPublicKey = import.meta.env.VITE_MERCADO_PAGO_PUBLIC_KEY || 'APP_USR-e0b0e5bc-6202-4b2a-8d76-e17f7de7517c';
+console.log("Initializing Mercado Pago with Public Key:", mpPublicKey);
 initMercadoPago(mpPublicKey);
 
 declare global {
@@ -154,6 +155,7 @@ export default function App() {
       }
       setIsLoadingPreference(true);
       setPaymentError(null);
+      console.log("Fetching payment preference for image:", resultImage);
       try {
         const response = await fetch('/api/create-preference', {
           method: 'POST',
@@ -167,13 +169,14 @@ export default function App() {
 
         const data = await response.json();
         if (data.preferenceId) {
+          console.log("Successfully created payment preference ID:", data.preferenceId);
           setPreferenceId(data.preferenceId);
           sessionStorage.setItem('mp_preference_id', data.preferenceId);
         } else {
           throw new Error('Falta el ID de preferencia de Mercado Pago.');
         }
       } catch (err: any) {
-        console.error(err);
+        console.error("Error creating payment preference:", err);
         setPaymentError(err.message || 'Error al conectar con Mercado Pago.');
       } finally {
         setIsLoadingPreference(false);
@@ -373,7 +376,11 @@ export default function App() {
                           </div>
                         ) : preferenceId ? (
                           <div id="walletBrick_container" className="w-full min-h-[48px]">
-                            <Wallet initialization={{ preferenceId }} />
+                            <Wallet 
+                              initialization={{ preferenceId }} 
+                              onReady={() => console.log("Mercado Pago Wallet Brick loaded successfully!")}
+                              onError={(error) => console.error("Mercado Pago Wallet Brick Error:", error)}
+                            />
                           </div>
                         ) : (
                           <div className="text-center py-2">
