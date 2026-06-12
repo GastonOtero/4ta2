@@ -6,6 +6,10 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw } from 'lucide-react';
 import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
+
+const mpPublicKey = import.meta.env.VITE_MERCADO_PAGO_PUBLIC_KEY || 'APP_USR-e0b0e5bc-6202-4b2a-8d76-e17f7de7517c';
+initMercadoPago(mpPublicKey);
 
 declare global {
   interface Window {
@@ -24,6 +28,8 @@ export default function App() {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isPaying, setIsPaying] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+  const [preferenceId, setPreferenceId] = useState<string | null>(null);
+  const [isLoadingPreference, setIsLoadingPreference] = useState(false);
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -86,6 +92,7 @@ export default function App() {
     setDownloadToken(null);
     setPaymentError(null);
     setIsPaying(false);
+    setPreferenceId(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -139,35 +146,42 @@ export default function App() {
     }
   }, []);
 
-  const startCheckoutPro = async () => {
-    if (!resultImage) return;
-    setIsPaying(true);
-    setPaymentError(null);
-
-    try {
-      const response = await fetch('/api/create-preference', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl: resultImage }),
-      });
-
-      if (!response.ok) {
-        throw new Error('No se pudo iniciar el pago. Intenta nuevamente.');
+  useEffect(() => {
+    const fetchPreference = async () => {
+      if (!resultImage || downloadToken) {
+        setPreferenceId(null);
+        return;
       }
+      setIsLoadingPreference(true);
+      setPaymentError(null);
+      try {
+        const response = await fetch('/api/create-preference', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageUrl: resultImage }),
+        });
 
-      const data = await response.json();
-      if (data.initPoint) {
-        sessionStorage.setItem('mp_preference_id', data.preferenceId);
-        window.location.href = data.initPoint;
-      } else {
-        throw new Error('Falta el punto de inicio de Mercado Pago.');
+        if (!response.ok) {
+          throw new Error('No se pudo crear la preferencia de pago.');
+        }
+
+        const data = await response.json();
+        if (data.preferenceId) {
+          setPreferenceId(data.preferenceId);
+          sessionStorage.setItem('mp_preference_id', data.preferenceId);
+        } else {
+          throw new Error('Falta el ID de preferencia de Mercado Pago.');
+        }
+      } catch (err: any) {
+        console.error(err);
+        setPaymentError(err.message || 'Error al conectar con Mercado Pago.');
+      } finally {
+        setIsLoadingPreference(false);
       }
-    } catch (err: any) {
-      console.error(err);
-      setPaymentError(err.message || 'Error al conectar con Mercado Pago.');
-      setIsPaying(false);
-    }
-  };
+    };
+
+    fetchPreference();
+  }, [resultImage, downloadToken]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -352,26 +366,36 @@ export default function App() {
 
                     {!downloadToken && (
                       <div className="max-w-md mx-auto p-6 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 space-y-4 text-center">
-                        <button
-                          onClick={startCheckoutPro}
-                          disabled={isPaying || isVerifyingPayment}
-                          className="w-full primary-gradient-bg text-on-primary font-bold px-8 py-4 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                        >
-                          {isPaying ? (
-                            <>
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                              <span>Conectando...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>💳 Pagar con Mercado Pago</span>
-                            </>
-                          )}
-                        </button>
+                        {isLoadingPreference ? (
+                          <div className="flex items-center justify-center py-4 gap-3 text-primary">
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            <span className="font-semibold text-sm">Cargando botón de pago...</span>
+                          </div>
+                        ) : preferenceId ? (
+                          <div id="walletBrick_container" className="w-full min-h-[48px]">
+                            <Wallet initialization={{ preferenceId }} />
+                          </div>
+                        ) : (
+                          <div className="text-center py-2">
+                            <p className="text-red-500 text-sm font-semibold mb-2">
+                              {paymentError || 'No se pudo cargar el botón de pago.'}
+                            </p>
+                            <button
+                              onClick={() => {
+                                const img = resultImage;
+                                setResultImage(null);
+                                setTimeout(() => setResultImage(img), 50);
+                              }}
+                              className="text-xs text-primary underline font-medium hover:text-primary-container transition-colors"
+                            >
+                              Intentar cargar nuevamente
+                            </button>
+                          </div>
+                        )}
                         <p className="text-xs text-on-surface-variant font-medium">
-                          Monto total: $500 ARS • Procesamiento seguro por Mercado Pago
+                          Monto total: $1000 ARS • Procesamiento seguro por Mercado Pago
                         </p>
-                        {paymentError && (
+                        {paymentError && !isLoadingPreference && !preferenceId && (
                           <p className="text-red-500 text-sm mt-2 text-center font-semibold">{paymentError}</p>
                         )}
                       </div>
