@@ -275,7 +275,10 @@ export default function App() {
               <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
                 {/* Header */}
                 <div className="text-center space-y-2 pr-6">
-                  <h2 className="text-3xl sm:text-4xl font-normal font-display tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] text-primary glimmer-text">
+                  <h2 
+                    className="text-3xl sm:text-4xl font-normal font-display tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] text-primary glimmer-text"
+                    style={{ fontSize: '2.5em', lineHeight: '1.1' }}
+                  >
                     VAMOS POR LA CUARTA
                   </h2>
                   <p className="text-sm text-on-surface-variant font-medium">
@@ -284,7 +287,7 @@ export default function App() {
                 </div>
 
                 {/* Video Section */}
-                <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-lg border border-white/60 bg-slate-950">
+                <div className="relative aspect-[9/16] max-w-[280px] sm:max-w-[320px] mx-auto w-full rounded-xl overflow-hidden shadow-lg border border-white/60 bg-slate-950">
                   <video
                     src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
                     autoPlay
