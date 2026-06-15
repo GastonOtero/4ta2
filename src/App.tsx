@@ -477,56 +477,62 @@ export default function App() {
                     </div>
 
                     {!downloadToken && (
-                      <div className="max-w-md mx-auto p-6 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 space-y-4 text-center">
-                        <button
-                          onClick={startCheckoutPro}
-                          disabled={isPaying || isVerifyingPayment}
-                          className="w-full primary-gradient-bg text-on-primary font-bold px-8 py-4 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                        >
-                          {isPaying ? (
-                            <>
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                              <span>Conectando...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>💳 Pagar con Mercado Pago</span>
-                            </>
+                      <div className="space-y-6">
+                        <div className="max-w-md mx-auto p-6 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 space-y-4 text-center">
+                          <button
+                            onClick={startCheckoutPro}
+                            disabled={isPaying || isVerifyingPayment}
+                            className="w-full primary-gradient-bg text-on-primary font-bold px-8 py-4 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                          >
+                            {isPaying ? (
+                              <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span>Conectando...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>💳 Pagar con Mercado Pago</span>
+                              </>
+                            )}
+                          </button>
+                          <p className="text-xs text-on-surface-variant font-medium">
+                            Monto total: $1000 ARS • Procesamiento seguro por Mercado Pago
+                          </p>
+                          {paymentError && (
+                            <p className="text-red-500 text-sm mt-2 text-center font-semibold">{paymentError}</p>
                           )}
-                        </button>
-                        <p className="text-xs text-on-surface-variant font-medium">
-                          Monto total: $1000 ARS • Procesamiento seguro por Mercado Pago
-                        </p>
-                        {paymentError && (
-                          <p className="text-red-500 text-sm mt-2 text-center font-semibold">{paymentError}</p>
-                        )}
+                        </div>
+
+                        <div className="text-center space-y-3 max-w-md mx-auto">
+                          <p className="text-sm text-on-surface-variant font-medium">
+                            Si notás alguna inconsistencia podés volver a subir tu foto
+                          </p>
+                          <button
+                            onClick={reset}
+                            className="flex items-center justify-center gap-2 border-2 border-primary/20 text-primary font-bold px-8 py-3 rounded-lg hover:bg-primary/5 transition-all mx-auto cursor-pointer"
+                          >
+                            <RotateCcw className="w-5 h-5" /> Volver a intentar
+                          </button>
+                        </div>
                       </div>
                     )}
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <button
-                        onClick={reset}
-                        className="flex items-center justify-center gap-2 border-2 border-primary/20 text-primary font-bold px-8 py-3 rounded-lg hover:bg-primary/5 transition-all"
-                      >
-                        <RotateCcw className="w-5 h-5" /> Intentar con otra
-                      </button>
-                      {downloadToken && (
-                        <>
-                          <a
-                            href={`/api/download?token=${downloadToken}`}
-                            className="primary-gradient-bg text-on-primary font-bold px-10 py-3 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"
-                          >
-                            <Download className="w-5 h-5" /> Descargar Retrato
-                          </a>
-                          <button
-                            className="border-2 border-primary/20 text-primary font-bold px-10 py-3 rounded-lg hover:bg-primary/5 active:scale-95 transition-all"
-                            onClick={() => window.open(`https://twitter.com/intent/tweet?text=Mirá mi retrato para el camino a la cuarta estrella! 🇦🇷&url=${encodeURIComponent(resultImage)}`, '_blank')}
-                          >
-                            Compartir en redes
-                          </button>
-                        </>
-                      )}
-                    </div>
+                    {downloadToken && (
+                      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a
+                          href={`/api/download?token=${downloadToken}`}
+                          className="primary-gradient-bg text-on-primary font-bold px-10 py-3 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+                        >
+                          <Download className="w-5 h-5" /> Descargar Retrato
+                        </a>
+                        <button
+                          className="border-2 border-primary/20 text-primary font-bold px-10 py-3 rounded-lg hover:bg-primary/5 active:scale-95 transition-all"
+                          onClick={() => window.open(`https://twitter.com/intent/tweet?text=Mirá mi retrato para el camino a la cuarta estrella! 🇦🇷&url=${encodeURIComponent(resultImage)}`, '_blank')}
+                        >
+                          Compartir en redes
+                        </button>
+                      </div>
+                    )}
                   </motion.div>
                 ) : (
                   <div className="relative group">
