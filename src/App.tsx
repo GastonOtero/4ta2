@@ -31,6 +31,11 @@ export default function App() {
 
   const [showIntroModal, setShowIntroModal] = useState(() => {
     if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const isReturningFromPayment = params.has('status') || params.has('payment_id');
+      if (isReturningFromPayment) {
+        return false;
+      }
       return localStorage.getItem('vamos_intro_seen') !== 'true';
     }
     return true;
