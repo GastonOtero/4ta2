@@ -12,7 +12,10 @@ import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 dotenv.config();
 
 // Initialize Mercado Pago Client
-const mpAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || 'APP_USR-3903854788162593-060314-8d067d6f680644136840eb317b2c10e2-3448792818';
+const mpAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+if (!mpAccessToken) {
+  console.warn("Warning: MERCADO_PAGO_ACCESS_TOKEN is not defined in the environment variables.");
+}
 const mpClient = new MercadoPagoConfig({ accessToken: mpAccessToken });
 const mpPreference = new Preference(mpClient);
 const mpPayment = new Payment(mpClient);
