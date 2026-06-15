@@ -440,21 +440,38 @@ export default function App() {
                         {!downloadToken ? 'Hacé tu pago seguro para descargar tu retrato en alta calidad.' : 'Ya estás para salir a alentar.'}
                       </p>
                     </div>
-                    <div className="relative group rounded-xl overflow-hidden shadow-inner bg-black/5">
-                      <img
-                        src={resultImage}
-                        alt="AI Generated Champion"
-                        className={`w-full h-auto max-h-[70vh] object-contain mx-auto transition-all duration-500 ${!downloadToken ? 'blur-md select-none pointer-events-none' : ''}`}
-                        referrerPolicy="no-referrer"
-                      />
-                      {downloadToken && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-6">
-                          <a
-                            href={`/api/download?token=${downloadToken}`}
-                            className="bg-white text-primary font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-fixed transition-colors"
-                          >
-                            <Download className="w-4 h-4" /> Descargar
-                          </a>
+                    <div className="relative group rounded-xl overflow-hidden shadow-inner bg-black/5 flex items-center justify-center p-4">
+                      {downloadToken ? (
+                        <>
+                          <img
+                            src={resultImage}
+                            alt="AI Generated Champion"
+                            className="w-full h-auto max-h-[70vh] object-contain mx-auto transition-all duration-500"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-6">
+                            <a
+                              href={`/api/download?token=${downloadToken}`}
+                              className="bg-white text-primary font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-fixed transition-colors"
+                            >
+                              <Download className="w-4 h-4" /> Descargar
+                            </a>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="relative select-none pointer-events-none max-w-[240px] w-full mx-auto">
+                          <img
+                            src={`https://images.weserv.nl/?url=${encodeURIComponent(resultImage)}&w=300&q=50`}
+                            alt="AI Generated Champion Preview"
+                            className="w-full h-auto rounded-lg shadow-md border border-white/20 select-none pointer-events-none"
+                            referrerPolicy="no-referrer"
+                          />
+                          {/* Transparent overlay to block save/drag */}
+                          <div 
+                            className="absolute inset-0 z-10 cursor-default"
+                            style={{ pointerEvents: 'auto' }}
+                            onContextMenu={(e) => e.preventDefault()}
+                          />
                         </div>
                       )}
                     </div>
