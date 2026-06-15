@@ -463,7 +463,7 @@ export default function App() {
                           <img
                             src={`https://images.weserv.nl/?url=${encodeURIComponent(resultImage)}&w=300&q=50`}
                             alt="AI Generated Champion Preview"
-                            className="w-full h-auto rounded-lg shadow-md border border-white/20 select-none pointer-events-none"
+                            className="w-full h-auto rounded-lg shadow-md border border-white/20 select-none pointer-events-none blur-[3px]"
                             referrerPolicy="no-referrer"
                           />
                           {/* Transparent overlay to block save/drag */}
