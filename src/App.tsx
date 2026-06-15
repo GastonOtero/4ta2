@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw, X, Sparkles, Share2, Info } from 'lucide-react';
 import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 import heroBg from './assets/estadio copa.jpg';
+import promoVideo from './assets/video/ejemplos.mp4';
+
 
 declare global {
   interface Window {
@@ -228,7 +230,7 @@ export default function App() {
           <div className="glass-card border border-white/60 rounded-[1.5rem] p-12 max-w-md w-full shadow-2xl text-center space-y-6">
             <div className="relative w-32 h-32 mx-auto">
               <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
-              <motion.div 
+              <motion.div
                 className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full"
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
@@ -275,7 +277,7 @@ export default function App() {
               <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
                 {/* Header */}
                 <div className="text-center space-y-2 pr-6">
-                  <h2 
+                  <h2
                     className="font-normal font-display tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] text-primary"
                     style={{ fontSize: 'clamp(4.6875rem, 10vw, 5.625rem)', lineHeight: '1.1' }}
                   >
@@ -289,7 +291,7 @@ export default function App() {
                 {/* Video Section */}
                 <div className="relative aspect-[9/16] max-w-[280px] sm:max-w-[320px] mx-auto w-full rounded-xl overflow-hidden shadow-lg border border-white/60 bg-slate-950">
                   <video
-                    src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+                    src={promoVideo}
                     autoPlay
                     muted
                     loop
@@ -366,19 +368,19 @@ export default function App() {
         <section id="hero" className="relative min-h-[45vh] sm:min-h-[55vh] flex items-center hero-gradient pt-16 sm:pt-20 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none z-10"></div>
           <div className="absolute inset-0 opacity-30 z-0">
-            <img 
-              alt="Hero background with stadium-inspired gradient" 
-              className="w-full h-full object-cover" 
+            <img
+              alt="Hero background with stadium-inspired gradient"
+              className="w-full h-full object-cover"
               src={heroBg}
             />
           </div>
-          <motion.div 
+          <motion.div
             className="max-w-7xl mx-auto px-6 text-center w-full relative z-20"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
           >
-            <motion.h1 
+            <motion.h1
               variants={itemVariants}
               className="text-5xl sm:text-6xl md:text-7xl font-normal font-display mb-6 tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] glimmer-text leading-tight"
               style={{ fontSize: 'clamp(5.25rem, 14vw, 9.625rem)', transform: 'translateY(-8%)' }}
@@ -394,7 +396,7 @@ export default function App() {
             <div className="max-w-4xl mx-auto w-full">
               <AnimatePresence mode="wait">
                 {isProcessing ? (
-                  <motion.div 
+                  <motion.div
                     key="processing"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -403,7 +405,7 @@ export default function App() {
                   >
                     <div className="relative w-32 h-32 mx-auto">
                       <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
-                      <motion.div 
+                      <motion.div
                         className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full"
                         animate={{ rotate: 360 }}
                         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
@@ -416,7 +418,7 @@ export default function App() {
                       <h3 className="text-2xl font-bold font-headline text-primary">Procesando tu camino...</h3>
                       <p className="text-on-surface-variant">Estamos creando tu retrato legendario con IA.</p>
                       <div className="h-1 w-48 bg-primary/20 mx-auto rounded-full mt-4 overflow-hidden">
-                        <motion.div 
+                        <motion.div
                           className="h-full bg-primary"
                           animate={{ x: ["-100%", "100%"] }}
                           transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -425,7 +427,7 @@ export default function App() {
                     </div>
                   </motion.div>
                 ) : resultImage ? (
-                  <motion.div 
+                  <motion.div
                     key="result"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -440,15 +442,15 @@ export default function App() {
                       </p>
                     </div>
                     <div className="relative group rounded-xl overflow-hidden shadow-inner bg-black/5">
-                      <img 
-                        src={resultImage} 
-                        alt="AI Generated Champion" 
+                      <img
+                        src={resultImage}
+                        alt="AI Generated Champion"
                         className={`w-full h-auto max-h-[70vh] object-contain mx-auto transition-all duration-500 ${!downloadToken ? 'blur-md select-none pointer-events-none' : ''}`}
                         referrerPolicy="no-referrer"
                       />
                       {downloadToken && (
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-6">
-                          <a 
+                          <a
                             href={`/api/download?token=${downloadToken}`}
                             className="bg-white text-primary font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-fixed transition-colors"
                           >
@@ -486,7 +488,7 @@ export default function App() {
                     )}
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <button 
+                      <button
                         onClick={reset}
                         className="flex items-center justify-center gap-2 border-2 border-primary/20 text-primary font-bold px-8 py-3 rounded-lg hover:bg-primary/5 transition-all"
                       >
@@ -500,7 +502,7 @@ export default function App() {
                           >
                             <Download className="w-5 h-5" /> Descargar Retrato
                           </a>
-                          <button 
+                          <button
                             className="border-2 border-primary/20 text-primary font-bold px-10 py-3 rounded-lg hover:bg-primary/5 active:scale-95 transition-all"
                             onClick={() => window.open(`https://twitter.com/intent/tweet?text=Mirá mi retrato para el camino a la cuarta estrella! 🇦🇷&url=${encodeURIComponent(resultImage)}`, '_blank')}
                           >
@@ -517,22 +519,22 @@ export default function App() {
                       <div className="text-center mb-6">
                         <h3 className="text-2xl font-bold font-headline text-primary">Sumate a alentar al campeón</h3>
                       </div>
-                      
+
                       {error && (
                         <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100 flex items-center gap-3">
                           <span className="font-bold">Error:</span> {error}
                         </div>
                       )}
 
-                      <div 
+                      <div
                         id="dropzone"
                         className="border-2 border-dashed border-primary/20 rounded-xl bg-white p-12 text-center transition-all duration-300 hover:border-primary/50 hover:bg-white/80 cursor-pointer group/upload"
                         onClick={handleUploadClick}
                       >
-                        <input 
-                          type="file" 
-                          ref={fileInputRef} 
-                          className="hidden" 
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
                           accept="image/jpeg,image/png"
                           onChange={handleFileChange}
                         />
@@ -555,24 +557,24 @@ export default function App() {
 
         {/* Lowered Mockup Video removed per request */}
 
-          <footer id="main-footer" className="w-full py-12 border-t border-primary/10 mt-auto">
-            <div className="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto gap-4">
-              <div className="mb-4 md:mb-0">
-                <div className="font-headline font-black text-primary text-xl">Vamos por la cuarta</div>
-              </div>
-              <div className="flex flex-col sm:flex-row items-center gap-4 text-on-surface-variant font-body text-sm">
-                <button
-                  onClick={() => setShowIntroModal(true)}
-                  className="hover:text-primary transition-colors flex items-center gap-1.5 font-medium cursor-pointer"
-                >
-                  <Info className="w-4 h-4" />
-                  Cómo funciona
-                </button>
-                <span className="hidden sm:inline opacity-30">|</span>
-                <span>© 2024 Vamos por la cuarta. Hecho para los campeones.</span>
-              </div>
+        <footer id="main-footer" className="w-full py-12 border-t border-primary/10 mt-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto gap-4">
+            <div className="mb-4 md:mb-0">
+              <div className="font-headline font-black text-primary text-xl">Vamos por la cuarta</div>
             </div>
-          </footer>
+            <div className="flex flex-col sm:flex-row items-center gap-4 text-on-surface-variant font-body text-sm">
+              <button
+                onClick={() => setShowIntroModal(true)}
+                className="hover:text-primary transition-colors flex items-center gap-1.5 font-medium cursor-pointer"
+              >
+                <Info className="w-4 h-4" />
+                Cómo funciona
+              </button>
+              <span className="hidden sm:inline opacity-30">|</span>
+              <span>© 2024 Vamos por la cuarta. Hecho para los campeones.</span>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   );
