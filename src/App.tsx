@@ -27,6 +27,7 @@ export default function App() {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isPaying, setIsPaying] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+  const [hasRetried, setHasRetried] = useState(false);
 
   const [showIntroModal, setShowIntroModal] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -126,6 +127,11 @@ export default function App() {
     setPaymentError(null);
     setIsPaying(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleRetry = () => {
+    setHasRetried(true);
+    reset();
   };
 
   useEffect(() => {
@@ -503,17 +509,19 @@ export default function App() {
                           )}
                         </div>
 
-                        <div className="text-center space-y-3 max-w-md mx-auto">
-                          <p className="text-sm text-on-surface-variant font-medium">
-                            Si notás alguna inconsistencia podés volver a subir tu foto
-                          </p>
-                          <button
-                            onClick={reset}
-                            className="flex items-center justify-center gap-2 border-2 border-primary/20 text-primary font-bold px-8 py-3 rounded-lg hover:bg-primary/5 transition-all mx-auto cursor-pointer"
-                          >
-                            <RotateCcw className="w-5 h-5" /> Volver a intentar
-                          </button>
-                        </div>
+                        {!hasRetried && (
+                          <div className="text-center space-y-3 max-w-md mx-auto">
+                            <p className="text-sm text-on-surface-variant font-medium">
+                              Si notás alguna inconsistencia podés volver a subir tu foto
+                            </p>
+                            <button
+                              onClick={handleRetry}
+                              className="flex items-center justify-center gap-2 border-2 border-primary/20 text-primary font-bold px-8 py-3 rounded-lg hover:bg-primary/5 transition-all mx-auto cursor-pointer"
+                            >
+                              <RotateCcw className="w-5 h-5" /> Volver a intentar
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
 
