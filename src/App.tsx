@@ -4,7 +4,7 @@
  */
 
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw, X, Sparkles, Share2, Info } from 'lucide-react';
+import { Play, CloudUpload, ShieldCheck, Loader2, Download, RotateCcw, X, Sparkles, Share2, Info, Instagram } from 'lucide-react';
 import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 import heroBg from './assets/estadio copa.jpg';
 import promoVideo from './assets/video/ejemplos.mp4';
@@ -531,19 +531,24 @@ export default function App() {
                     )}
 
                     {downloadToken && (
-                      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a
-                          href={`/api/download?token=${downloadToken}`}
-                          className="primary-gradient-bg text-on-primary font-bold px-10 py-3 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"
-                        >
-                          <Download className="w-5 h-5" /> Descargar Retrato
-                        </a>
-                        <button
-                          className="border-2 border-primary/20 text-primary font-bold px-10 py-3 rounded-lg hover:bg-primary/5 active:scale-95 transition-all"
-                          onClick={() => window.open(`https://twitter.com/intent/tweet?text=Mirá mi retrato para el camino a la cuarta estrella! 🇦🇷&url=${encodeURIComponent(resultImage)}`, '_blank')}
-                        >
-                          Compartir en redes
-                        </button>
+                      <div className="space-y-4 text-center">
+                        <p className="text-sm text-on-surface-variant font-medium max-w-md mx-auto">
+                          Asegurate de descargar o compartir tu imagen ya que no queda almacenada en nuestros servidores
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                          <a
+                            href={`/api/download?token=${downloadToken}`}
+                            className="primary-gradient-bg text-on-primary font-bold px-10 py-3 rounded-lg shadow-lg hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+                          >
+                            <Download className="w-5 h-5" /> Descargar Retrato
+                          </a>
+                          <button
+                            className="border-2 border-primary/20 text-primary font-bold px-10 py-3 rounded-lg hover:bg-primary/5 active:scale-95 transition-all flex items-center justify-center gap-2"
+                            onClick={() => window.open('https://www.instagram.com/', '_blank')}
+                          >
+                            <Instagram className="w-5 h-5" /> Compartir en Instagram
+                          </button>
+                        </div>
                       </div>
                     )}
                   </motion.div>
