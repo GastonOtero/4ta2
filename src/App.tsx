@@ -276,8 +276,8 @@ export default function App() {
                 {/* Header */}
                 <div className="text-center space-y-2 pr-6">
                   <h2 
-                    className="text-3xl sm:text-4xl font-normal font-display tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] text-primary glimmer-text"
-                    style={{ fontSize: '2.5em', lineHeight: '1.1' }}
+                    className="font-normal font-display tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] text-primary"
+                    style={{ fontSize: 'clamp(4.6875rem, 10vw, 5.625rem)', lineHeight: '1.1' }}
                   >
                     VAMOS POR LA CUARTA
                   </h2>
