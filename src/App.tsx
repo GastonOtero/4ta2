@@ -415,8 +415,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-2xl font-bold font-headline text-primary">Procesando tu camino...</h3>
-                      <p className="text-on-surface-variant">Estamos creando tu retrato legendario con IA.</p>
+                      <h3 className="text-2xl font-bold font-headline text-primary">Estamos procesando tu imagen</h3>
                       <div className="h-1 w-48 bg-primary/20 mx-auto rounded-full mt-4 overflow-hidden">
                         <motion.div
                           className="h-full bg-primary"
@@ -435,10 +434,10 @@ export default function App() {
                   >
                     <div className="text-center">
                       <h3 className="text-3xl font-black font-headline text-primary mb-2">
-                        {!downloadToken ? '🔒 PAGA PARA DESCARGAR TU RETRATO' : '✅ ¡EL CAMPEÓN ESTÁ AQUÍ!'}
+                        {!downloadToken ? 'CONFIRMA TU RETRATO ' : 'VAMOS POR LA CUARTA'}
                       </h3>
                       <p className="text-on-surface-variant">
-                        {!downloadToken ? 'Hacé tu pago seguro para descargar tu retrato en alta calidad.' : 'Tu retrato del camino a la cuarta estrella.'}
+                        {!downloadToken ? 'Hacé tu pago seguro para descargar tu retrato en alta calidad.' : 'Ya estás para salir a alentar.'}
                       </p>
                     </div>
                     <div className="relative group rounded-xl overflow-hidden shadow-inner bg-black/5">
