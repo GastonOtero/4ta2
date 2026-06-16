@@ -611,7 +611,6 @@ export default function App() {
                 Cómo funciona
               </button>
               <span className="hidden sm:inline opacity-30">|</span>
-              <span>© 2024 Vamos por la cuarta. Hecho para los campeones.</span>
             </div>
           </div>
         </footer>
