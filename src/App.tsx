@@ -533,7 +533,7 @@ export default function App() {
                     {downloadToken && (
                       <div className="space-y-4 text-center">
                         <p className="text-sm text-on-surface-variant font-medium max-w-md mx-auto">
-                          Asegurate de descargar o compartir tu imagen ya que no queda almacenada en nuestros servidores
+                          Asegurate de descargar tu imagen ya que no queda almacenada en nuestros servidores
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                           <a
@@ -542,12 +542,6 @@ export default function App() {
                           >
                             <Download className="w-5 h-5" /> Descargar Retrato
                           </a>
-                          <button
-                            className="border-2 border-primary/20 text-primary font-bold px-10 py-3 rounded-lg hover:bg-primary/5 active:scale-95 transition-all flex items-center justify-center gap-2"
-                            onClick={() => window.open('https://www.instagram.com/', '_blank')}
-                          >
-                            <Instagram className="w-5 h-5" /> Compartir en Instagram
-                          </button>
                         </div>
                       </div>
                     )}
